@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import slugPlugin from "../utils/slugPlugin.js";
+import stockMiddleware from "../utils/stockMiddleware.js";
 
 const productSchema = new mongoose.Schema(
   {
@@ -7,10 +8,10 @@ const productSchema = new mongoose.Schema(
 
     slug: {
       type: String,
+      required: true,
       unique: true,
       lowercase: true,
-      required: true,
-      index: true,
+      trim: true,
     },
 
     description: { type: String, required: true },
@@ -21,42 +22,50 @@ const productSchema = new mongoose.Schema(
 
     discount: { type: Number, default: 0, min: 0, max: 100 },
 
-    images: [
-      {
-        url: {
-          type: String,
-          required: true,
+    images: {
+      type: [
+        {
+          url: { type: String, required: true },
+          public_id: { type: String, required: true },
         },
-        public_id: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+      ],
+      validate: [(val) => val.length > 0, "At least one image is required"],
+    },
 
-    category: { type: String, required: true },
+    category: {
+      type: String,
+      required: true,
+    },
 
     subCategory: { type: String },
 
     brand: { type: String, default: "" },
 
-    variants: [
-      {
-        name: String, // e.g. "Large", "Medium"
-        price: { type: Number, min: 0 },
-        stock: { type: Number, min: 0 },
-        color: String,
-
-        image: { url: String, public_id: String },
-      },
-    ],
+    variants: {
+      type: [
+        {
+          name: { type: String, required: true },
+          price: { type: Number, min: 0 },
+          stock: { type: Number, min: 0, default: 0 },
+          color: String,
+          image: {
+            url: String,
+            public_id: String,
+          },
+        },
+      ],
+      default: [],
+    },
 
     attributes: {
       material: String,
       color: String,
       weight: Number,
-
-      dimensions: { length: Number, width: Number, height: Number },
+      dimensions: {
+        length: Number,
+        width: Number,
+        height: Number,
+      },
     },
 
     stock: { type: Number, default: 0, min: 0 },
@@ -65,11 +74,20 @@ const productSchema = new mongoose.Schema(
 
     bestseller: { type: Boolean, default: false },
 
-    featured: { type: Boolean, default: false },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
 
     newArrival: { type: Boolean, default: false },
 
-    rating: { type: Number, default: 0, min: 0, max: 5 },
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+      set: (v) => Math.round(v * 10) / 10,
+    },
 
     numReviews: { type: Number, default: 0 },
 
@@ -77,7 +95,10 @@ const productSchema = new mongoose.Schema(
 
     isActive: { type: Boolean, default: true },
 
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,
@@ -86,36 +107,22 @@ const productSchema = new mongoose.Schema(
   },
 );
 
-// Slug plugin
 productSchema.plugin(slugPlugin, { field: "name" });
+productSchema.plugin(stockMiddleware);
 
-// Virtual: Final Price
 productSchema.virtual("finalPrice").get(function () {
   return Math.max(0, this.price - (this.price * this.discount) / 100);
 });
 
-// Indexes (for performance)
+productSchema.index({ slug: 1 }, { unique: true });
 productSchema.index({
   name: "text",
   description: "text",
   category: "text",
 });
-
 productSchema.index({ price: 1 });
 productSchema.index({ category: 1 });
-productSchema.index({ slug: 1 });
-
-//  Middleware (optional but powerful)
-// Auto-set stock from variants if exists
-productSchema.pre("save", function (next) {
-  if (this.variants && this.variants.length > 0) {
-    this.stock = this.variants.reduce(
-      (total, variant) => total + (variant.stock || 0),
-      0,
-    );
-  }
-  next();
-});
+productSchema.index({ category: 1, price: 1 });
 
 const productModel =
   mongoose.models.product || mongoose.model("product", productSchema);
