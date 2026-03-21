@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
           ref: "Product",
         },
         quantity: { type: Number, default: 1, min: 1 },
-        size: { type: String },
+        size: { type: String, default: "" },
       },
     ],
 
@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
 
     // OTP (email verification)
     verifyOtp: { type: String, default: "" },
-    verifyOtpExpireAt: { type: Date },
+    verifyOtpExpireAt: { type: Date, default: null },
 
     //  Password reset
     resetOtp: { type: String, default: "" },
