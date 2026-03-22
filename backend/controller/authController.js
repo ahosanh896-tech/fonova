@@ -1,17 +1,18 @@
 import bcrypt from "bcrypt";
-import jwt, { verify } from "jsonwebtoken";
-import userModel from "../models/userModel";
+
+import userModel from "../models/userModel.js";
+import transporter from "../config/nodemailer.js";
 
 const generateOtp = () => {
-  String(Math.floor(100000 + Math.random() * 900000));
+  return String(Math.floor(100000 + Math.random() * 900000));
 };
 
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.Node_ENV === "production",
-  sameSite: process.env.Node_ENV === "production" ? "none" : "strict",
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
 
-  maxAge: 7 * 24 * 60 * 60 * 10000,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
 export const register = async (req, res) => {
@@ -42,7 +43,7 @@ export const register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "Password must be at least 6 characters and include letters and numbers",
+          "Password must be at least 8 characters and include letters and numbers",
       });
     }
 
@@ -63,7 +64,7 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       verifyOtp: otp,
-      verifyOtpExpireAt: Date.now + 20 * 60 * 1000,
+      verifyOtpExpireAt: Date.now() + 20 * 60 * 1000,
     });
 
     await transporter.sendMail({
