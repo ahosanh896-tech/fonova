@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-
+import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import transporter from "../config/nodemailer.js";
 import { generateOtp } from "../utils/generateOtp.js";
@@ -108,42 +108,72 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
-    const user = await userModel.findOne({ email }).select("+password");
-
-    if (!user) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Email and password required",
       });
     }
 
-    //check password
+    email = email.trim().toLowerCase();
+
+    const user = await userModel.findOne({ email }).select("+password");
+
+    // unified error
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Account is blocked",
+      });
+    }
+
+    if (!user.isAccountVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Please verify your email first",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid email or password",
       });
     }
 
-    //check verification
-    if (!user.isAccountVerified) {
-      return res.status(403).json({
-        success: false,
-        message: "Please verify your account first",
-      });
-    }
+    // remove password
+    user.password = undefined;
 
-    res.json({
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    res.cookie("token", token, cookieOptions);
+
+    return res.status(200).json({
       success: true,
       message: "Login successful",
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false });
+    console.log("LOGIN ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
