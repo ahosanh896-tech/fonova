@@ -194,7 +194,55 @@ export const logout = async (req, res) => {
   }
 };
 
-export const resendOtp = async (req, res) => {};
+export const resendOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await userModel.findOne({ email }).select("+verifyOtp");
+
+    //if the otp or user not exist in mongoose
+    if (!user || !user.verifyOtp) {
+      return res.status(400).json({
+        return: false,
+        message: "Invalid request",
+      });
+    }
+
+    if (user.verifyOtpExpireAt < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.verifyOtp);
+
+    if (!isMatch) {
+      return req.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    user.isAccountVerified = true;
+    user.verifyOtp = null;
+    user.verifyOtpExpireAt = null;
+    user.verifiedAt = new Date();
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Account verified",
+    });
+  } catch (error) {
+    console.log("verifyOtp error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 export const verifyOtp = async (req, res) => {};
 
