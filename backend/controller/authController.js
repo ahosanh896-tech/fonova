@@ -335,6 +335,45 @@ export const isAuthenticated = async (req, res) => {
   }
 };
 
-export const sendResetOtp = async (req, res) => {};
+export const sendResetOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not founded",
+      });
+    }
+
+    const otp = generateOtp();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    user.resetOtp = hashedOtp;
+    user.resetOtpExpireAt = Date.now() + 5 * 60 * 1000;
+
+    await user.save();
+
+    await transporter.sendMail({
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your OTP is ${otp}`,
+    });
+
+    res.json({
+      success: true,
+      message: "Reset OTP sent",
+    });
+  } catch (error) {
+    console.log("SEND RESET OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 export const resetPassword = async (req, res) => {};
