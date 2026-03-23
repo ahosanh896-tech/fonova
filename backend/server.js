@@ -6,6 +6,7 @@ import "dotenv/config";
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
 import authRouter from "./routes/authRoutes.js";
+import startCronJobs from "./config/cron.js";
 
 // App config
 const app = express();
@@ -20,6 +21,9 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+
+//start cron jobs
+startCronJobs();
 
 // routes
 app.get("/", (req, res) => {
