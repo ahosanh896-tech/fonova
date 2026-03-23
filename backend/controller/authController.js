@@ -291,15 +291,49 @@ export const resendOtp = async (req, res) => {
       success: true,
       message: "OTP resent",
     });
-  } catch (error) { 
+  } catch (error) {
     console.log("RESENT ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
     });
-}
+  }
+};
 
-export const isAuthenticated = async (req, res) => {};
+export const isAuthenticated = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated",
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await userModel.findById(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log("AUTHENTICATION ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 export const sendResetOtp = async (req, res) => {};
 
