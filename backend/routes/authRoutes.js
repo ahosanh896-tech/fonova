@@ -5,6 +5,8 @@ import {
   logout,
   register,
   resendOtp,
+  resetPassword,
+  sendResetOtp,
   verifyOtp,
 } from "../controller/authController.js";
 
@@ -17,5 +19,8 @@ authRouter.post("/logout", logout);
 authRouter.post("/resend-verify-otp", resendOtp);
 
 authRouter.get("/is-auth", isAuthenticated);
+
+authRouter.post("/send-reset-otp", sendResetOtp);
+authRouter.post("/reset-password", resetPassword);
 
 export default authRouter;
