@@ -2,10 +2,7 @@ import bcrypt from "bcrypt";
 
 import userModel from "../models/userModel.js";
 import transporter from "../config/nodemailer.js";
-
-const generateOtp = () => {
-  return String(Math.floor(100000 + Math.random() * 900000));
-};
+import { generateOtp } from "../utils/generateOtp.js";
 
 const cookieOptions = {
   httpOnly: true,
@@ -49,23 +46,45 @@ export const register = async (req, res) => {
 
     const existingUser = await userModel.findOne({ email });
 
-    if (existingUser) {
+    if (existingUser && existingUser.isAccountVerified) {
       return res.status(409).json({
         success: false,
         message: "User already exists",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = generateOtp();
+    if (
+      existingUser &&
+      existingUser.verifyOtpExpireAt &&
+      existingUser.verifyOtpExpireAt > Date.now()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP already sent. Please wait",
+      });
+    }
 
-    await userModel.create({
-      name: name.trim(),
-      email,
-      password: hashedPassword,
-      verifyOtp: otp,
-      verifyOtpExpireAt: Date.now() + 20 * 60 * 1000,
-    });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const otp = generateOtp();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    let user;
+
+    if (existingUser) {
+      existingUser.verifyOtp = hashedOtp;
+      existingUser.verifyOtpExpireAt = Date.now() + 5 * 60 * 1000;
+
+      user = await existingUser.save();
+    } else {
+      user = await userModel.create({
+        name: name.trim(),
+        email,
+        password: hashedPassword,
+        verifyOtp: hashedOtp,
+        verifyOtpExpireAt: Date.now() + 5 * 60 * 1000,
+      });
+    }
 
     await transporter.sendMail({
       from: process.env.SENDER_EMAIL,

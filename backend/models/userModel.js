@@ -30,22 +30,20 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
-    //  Account control
+    // Account control
     isActive: { type: Boolean, default: true },
     isAccountVerified: { type: Boolean, default: false },
     verifiedAt: { type: Date },
 
     // OTP (email verification)
-    verifyOtp: { type: String, default: "" },
+    verifyOtp: { type: String, default: null, select: false },
     verifyOtpExpireAt: { type: Date, default: null },
 
-    //  Password reset
-    resetOtp: { type: String, default: "" },
+    // Password reset
+    resetOtp: { type: String, default: null, select: false },
     resetOtpExpireAt: { type: Date },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 const userModel = mongoose.models.User || mongoose.model("User", userSchema);
