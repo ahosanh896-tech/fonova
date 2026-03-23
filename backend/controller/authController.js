@@ -105,3 +105,56 @@ export const register = async (req, res) => {
     });
   }
 };
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await userModel.findOne({ email }).select("+password");
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    //check password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    //check verification
+    if (!user.isAccountVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Please verify your account first",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Login successful",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false });
+  }
+};
+
+export const logout = async (req, res) => {};
+
+export const resendOtp = async (req, res) => {};
+
+export const verifyOtp = async (req, res) => {};
+
+export const isAuthenticated = async (req, res) => {};
+
+export const sendResetOtp = async (req, res) => {};
+
+export const resetPassword = async (req, res) => {};
