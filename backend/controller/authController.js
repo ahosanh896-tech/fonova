@@ -244,7 +244,60 @@ export const verifyOtp = async (req, res) => {
   }
 };
 
-export const resendOtp = async (req, res) => {};
+export const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.isAccountVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Already verified",
+      });
+    }
+
+    // Prevent spam
+    if (user.verifyOtpExpireAt && user.verifyOtpExpireAt > Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "wait before requesing new OTP",
+      });
+    }
+
+    const otp = generateOtp();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    user.verifyOtp = hashedOtp;
+    user.verifyOtpExpireAt = Date.now() + 5 * 60 * 1000;
+
+    await user.save();
+
+    await transporter.sendMail({
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Resend OTP",
+      text: `Your OTP is ${otp}`,
+    });
+
+    res.json({
+      success: true,
+      message: "OTP resent",
+    });
+  } catch (error) { 
+    console.log("RESENT ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+}
 
 export const isAuthenticated = async (req, res) => {};
 
