@@ -194,7 +194,7 @@ export const logout = async (req, res) => {
   }
 };
 
-export const resendOtp = async (req, res) => {
+export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
@@ -236,7 +236,7 @@ export const resendOtp = async (req, res) => {
       message: "Account verified",
     });
   } catch (error) {
-    console.log("verifyOtp error:", error);
+    console.log("VERIFY ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -244,7 +244,7 @@ export const resendOtp = async (req, res) => {
   }
 };
 
-export const verifyOtp = async (req, res) => {};
+export const resendOtp = async (req, res) => {};
 
 export const isAuthenticated = async (req, res) => {};
 
