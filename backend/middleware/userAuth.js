@@ -31,3 +31,5 @@ const userAuth = async (req, res) => {
     });
   }
 };
+
+export default userAuth;
