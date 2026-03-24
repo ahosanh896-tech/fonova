@@ -8,7 +8,6 @@ const productSchema = new mongoose.Schema(
 
     slug: {
       type: String,
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -30,7 +29,7 @@ const productSchema = new mongoose.Schema(
       validate: [(val) => val.length > 0, "At least one image is required"],
     },
 
-    category: { type: String, required: true, index: true },
+    category: { type: String, required: true },
     subCategory: { type: String, index: true },
     brand: { type: String, default: "" },
 

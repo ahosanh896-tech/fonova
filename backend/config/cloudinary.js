@@ -8,4 +8,5 @@ const connectCloudinary = () => {
   });
 };
 
+export { cloudinary };
 export default connectCloudinary;

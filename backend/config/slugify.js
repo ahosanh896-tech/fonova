@@ -1,3 +1,5 @@
+import slugify from "slugify";
+
 const generateSlug = (text) => {
   if (!text || typeof text !== "string") return "";
 
@@ -7,3 +9,5 @@ const generateSlug = (text) => {
     trim: true,
   });
 };
+
+export default generateSlug;
