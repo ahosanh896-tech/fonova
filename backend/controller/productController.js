@@ -313,6 +313,13 @@ export const updateProduct = async (req, res) => {
 
     if (stock !== undefined) product.stock = Number(stock);
 
+    //auto hide logic
+    if (product.stock === 0) {
+      product.isActive = false;
+    } else {
+      product.isActive = true;
+    }
+
     if (bestseller !== undefined) product.bestseller = bestseller === true;
 
     if (featured !== undefined) product.featured = featured === true;
@@ -390,7 +397,35 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
-export const restoreProduct = async (req, res) => {};
+export const restoreProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await productModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    product.isActive = true;
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Product restored successfully",
+      product,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const compareProducts = async (req, res) => {};
 
