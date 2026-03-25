@@ -152,7 +152,53 @@ export const getProducts = async (req, res) => {
   }
 };
 
-export const getSingleProduct = async (req, res) => {};
+export const getSingleProduct = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    //get product
+    const product = await productModel
+      .findOne({ slug, isActive: true })
+      .populate("createdBy", "name")
+      .lean();
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // Related products(same category)
+    const relatedProducts = await productModel
+      .find({
+        category: product.category,
+        _id: { $ne: product._id },
+        isActive: true,
+      })
+      .select("name slug price images rating")
+      .limit(4)
+      .lean();
+
+    //limit reviews
+    const reviews = product.reviews ? product.reviews.slice(-5).reverse() : [];
+
+    res.json({
+      success: true,
+      product: {
+        ...product,
+        reviews,
+      },
+      relatedProducts,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const updateProduct = async (req, res) => {};
 
