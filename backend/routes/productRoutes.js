@@ -3,6 +3,7 @@ import upload from "../middleware/multer.js";
 
 import {
   addProduct,
+  deleteProduct,
   getProducts,
   getSingleProduct,
   updateProduct,
@@ -17,5 +18,7 @@ productRouter.get("/", getProducts);
 productRouter.get("/:slug", getSingleProduct);
 
 productRouter.put("/:id", upload.array("images", 4), updateProduct);
+
+productRouter.delete("/:id", deleteProduct);
 
 export default productRouter;

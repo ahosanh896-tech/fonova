@@ -335,7 +335,62 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-export const deleteProduct = async (req, res) => {};
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { soft } = req.query; //if ?soft=true
+
+    const product = await productModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    //soft delete
+    if (soft === "true") {
+      product.isActive = false;
+      await product.save();
+
+      return res.json({
+        success: true,
+        message: "Product soft deleted (hidden)",
+      });
+    }
+
+    //hard delete
+    if (product.images && product.images.length > 0) {
+      await Promise.all(
+        product.images.map(async (img) => {
+          if (img.public_id) {
+            try {
+              await cloudinary.uploader.destroy(img.public_id);
+            } catch (error) {
+              console.error("Cloudinary delete error:", error.message);
+            }
+          }
+        }),
+      );
+    }
+
+    await product.deleteOne();
+
+    res.json({
+      success: true,
+      message: "Product permanently deleted",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const restoreProduct = async (req, res) => {};
 
 export const compareProducts = async (req, res) => {};
 
