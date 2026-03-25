@@ -1,5 +1,6 @@
 import express from "express";
 import upload from "../middleware/multer.js";
+import userAuth from "../middleware/userAuth.js";
 
 import {
   addProduct,
@@ -9,6 +10,7 @@ import {
   getSingleProduct,
   restoreProduct,
   updateProduct,
+  addReview,
 } from "../controller/productController.js";
 
 const productRouter = express.Router();
@@ -24,4 +26,6 @@ productRouter.put("/update/:id", upload.array("images", 4), updateProduct);
 productRouter.delete("/delete/:id", deleteProduct);
 
 productRouter.put("/restore/:id", restoreProduct);
+
+productRouter.post("/:id/review", userAuth, addReview);
 export default productRouter;

@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
+import userModel from "../models/userModel.js";
 
-const userAuth = async (req, res) => {
+const userAuth = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token = req.cookies?.token;
 
     if (!token) {
       return res.status(401).json({
@@ -20,14 +21,23 @@ const userAuth = async (req, res) => {
       });
     }
 
-    req.userId = decoded.id;
+    const user = await userModel.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    req.user = user;
 
     next();
   } catch (error) {
     console.log("USER AUTH:", error);
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
-      message: "Internal server error",
+      message: "Not authorized",
     });
   }
 };
