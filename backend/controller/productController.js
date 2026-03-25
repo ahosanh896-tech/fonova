@@ -496,4 +496,51 @@ export const compareProducts = async (req, res) => {
   }
 };
 
-export const getBestsellerProducts = async (req, res) => {};
+export const getBestsellerProducts = async (req, res) => {
+  try {
+    const { limit = 8, sort = "latest", category } = req.query;
+
+    let query = {
+      bestseller: true,
+      isActive: true,
+    };
+
+    if (category) {
+      query.category = category;
+    }
+
+    let sortOption = {};
+
+    switch (sort) {
+      case "price_asc":
+        sortOption.price = 1;
+        break;
+      case "price_desc":
+        sortOption.price = -1;
+        break;
+      case "top_selling":
+        sortOption.sold = -1;
+        break;
+      default:
+        sortOption.createAt = -1;
+    }
+
+    const products = await productModel
+      .find(query)
+      .sort(sortOption)
+      .limit(Number(limit))
+      .lean({ virtuals: true });
+
+    res.json({
+      success: true,
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

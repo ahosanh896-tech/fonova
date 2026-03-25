@@ -4,6 +4,7 @@ import upload from "../middleware/multer.js";
 import {
   addProduct,
   deleteProduct,
+  getBestsellerProducts,
   getProducts,
   getSingleProduct,
   restoreProduct,
@@ -15,13 +16,12 @@ const productRouter = express.Router();
 productRouter.post("/add", upload.array("images", 4), addProduct);
 
 productRouter.get("/", getProducts);
+productRouter.get("/bestsellers", getBestsellerProducts);
+productRouter.get("/slug/:slug", getSingleProduct);
 
-productRouter.get("/:slug", getSingleProduct);
+productRouter.put("/update/:id", upload.array("images", 4), updateProduct);
 
-productRouter.put("/:id", upload.array("images", 4), updateProduct);
-
-productRouter.delete("/:id", deleteProduct);
+productRouter.delete("/delete/:id", deleteProduct);
 
 productRouter.put("/restore/:id", restoreProduct);
-
 export default productRouter;
