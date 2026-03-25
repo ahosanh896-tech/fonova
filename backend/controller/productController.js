@@ -427,6 +427,73 @@ export const restoreProduct = async (req, res) => {
   }
 };
 
-export const compareProducts = async (req, res) => {};
+export const compareProducts = async (req, res) => {
+  try {
+    const { ids } = req.query;
+
+    if (!ids) {
+      return res.status(404).json({
+        success: false,
+        message: "Product IDs or slugs are required",
+      });
+    }
+
+    //convert ids string to array
+    const productIds = ids.split(",").map((item) => item.trim());
+
+    //limit max compare
+    if (item.length > 4) {
+      return res.status(400).json({
+        success: false,
+        message: "You can compare up to 4 products only",
+      });
+    }
+
+    const products = await productModel
+      .find({
+        $or: [{ _id: { $in: productIds } }, { slug: { $in: items } }],
+        isActive: true,
+      })
+      .select(
+        "name slug price discount images rating numReviews category brand compareFields attributes ",
+      )
+      .lean();
+
+    if (!products.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No products found",
+      });
+    }
+
+    const formattedProducts = products.map((p) => ({
+      _id: p._id,
+      name: p.name,
+      slug: p.slug,
+      price: p.price,
+      discount: p.discount,
+      finalPrice: p.price - (p.price * (p.discount || 0)) / 100,
+      image: p.images?.[0]?.url || "",
+      rating: p.rating,
+      numReviews: p.numReviews,
+      category: p.category,
+      brand: p.brand,
+      compare: p.compareFields,
+      attributes: p.attributes,
+    }));
+
+    res.json({
+      success: true,
+      count: formattedProducts.length,
+      products: formattedProducts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const getBestsellerProducts = async (req, res) => {};
