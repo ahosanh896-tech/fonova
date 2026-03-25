@@ -200,7 +200,140 @@ export const getSingleProduct = async (req, res) => {
   }
 };
 
-export const updateProduct = async (req, res) => {};
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await productModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const {
+      name,
+      description,
+      shortDescription,
+      price,
+      discount,
+      category,
+      subCategory,
+      brand,
+      stock,
+      bestseller,
+      featured,
+      newArrival,
+      attributes,
+      variants,
+      compareFields,
+      tags,
+      removeImages,
+    } = req.body;
+
+    // Delete selected images
+    let parsedRemoved = [];
+
+    if (removeImages) {
+      try {
+        parsedRemoved = JSON.parse(removeImages);
+
+        //ensure always array
+        if (!Array.isArray(parsedRemoved)) {
+          parsedRemoved = [parsedRemoved];
+        }
+
+        //delete from cloudinary
+        await Promise.all(
+          parsedRemoved.map((public_id) =>
+            cloudinary.uploader.destroy(public_id),
+          ),
+        );
+
+        //remove from mongodb
+        product.images = product.images.filter(
+          (img) => !parsedRemoved.includes(img.public_id),
+        );
+      } catch (error) {
+        return (
+          res.status(400),
+          json({
+            success: false,
+            message: "Invalid removedImages format",
+          })
+        );
+      }
+    }
+
+    //Add new images
+    if (req.files && req.files.length > 0) {
+      const newImages = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await cloudinary.uploader.upload(file.path, {
+            resource_type: "image",
+          });
+
+          return {
+            url: result.secure_url,
+            public_id: result.public_id,
+          };
+        }),
+      );
+      product.images.push(...newImages);
+    }
+
+    //safe json parsing
+    const safeParse = (data, fallback) => {
+      try {
+        return data ? JSON.parse(data) : fallback;
+      } catch (error) {
+        console.log(error);
+        return fallback;
+      }
+    };
+
+    product.variants = safeParse(variants, product.variants);
+    product.attributes = safeParse(attributes, product.attributes);
+    product.compareFields = safeParse(compareFields, product.compareFields);
+    product.tags = safeParse(tags, product.tags);
+
+    //update fields
+    if (name) product.name = name;
+    if (description) product.description = description;
+    if (shortDescription) product.shortDescription = shortDescription;
+
+    if (price !== undefined) product.price = Number(price);
+    if (discount !== undefined) product.discount = Number(discount);
+
+    if (category) product.category = category;
+    if (subCategory) product.subCategory = subCategory;
+    if (brand) product.brand = brand;
+
+    if (stock !== undefined) product.stock = Number(stock);
+
+    if (bestseller !== undefined) product.bestseller = bestseller === true;
+
+    if (featured !== undefined) product.featured = featured === true;
+
+    if (newArrival !== undefined) product.newArrival === "true";
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Product updated successfully",
+      product,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const deleteProduct = async (req, res) => {};
 
