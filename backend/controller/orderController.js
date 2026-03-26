@@ -120,7 +120,41 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
-export const getSingleOrder = async (req, res) => {};
+export const getSingleOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await orderModel.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    //only owner or admin can view
+    if (
+      order.user.toString() !== req.user._id.toString() &&
+      !req.user.isAdmin
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized",
+      });
+    }
+
+    res.json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const updateOrderStatus = async (req, res) => {};
 
