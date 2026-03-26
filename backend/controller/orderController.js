@@ -156,7 +156,36 @@ export const getSingleOrder = async (req, res) => {
   }
 };
 
-export const updateOrderStatus = async (req, res) => {};
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const order = await orderModel.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    order.orderStatus = status;
+
+    await order.save();
+
+    res.json({
+      success: true,
+      message: "Order status updated",
+      order,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const updatePaymentStatus = async (req, res) => {};
 
