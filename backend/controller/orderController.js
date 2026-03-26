@@ -1,9 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
 
-import orderModel from "../models/orderModel.js";
-import productModel from "../models/productModel.js";
-
 export const placeOrder = async (req, res) => {
   try {
     const { orderItems, shippingAddress, paymentMethod = "COD" } = req.body;
@@ -96,11 +93,32 @@ export const placeOrder = async (req, res) => {
   }
 };
 
-export const orderStripe = async (req, res) => {};
+//export const orderStripe = async (req, res) => {};
 
-export const verifyStripe = async (req, res) => {};
+//export const verifyStripe = async (req, res) => {};
 
-export const getUserOrders = async (req, res) => {};
+export const getUserOrders = async (req, res) => {
+  try {
+    const userId = req.user._Id;
+
+    const orders = await orderModel
+      .find({ user: userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const getSingleOrder = async (req, res) => {};
 
