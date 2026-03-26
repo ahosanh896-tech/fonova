@@ -12,6 +12,7 @@ import {
   updateProduct,
   addReview,
   updateReview,
+  deleteReview,
 } from "../controller/productController.js";
 
 const productRouter = express.Router();
@@ -30,4 +31,5 @@ productRouter.put("/restore/:id", restoreProduct);
 
 productRouter.post("/review/:id", userAuth, addReview);
 productRouter.put("/review/:id", userAuth, updateReview);
+productRouter.delete("/review/:id", userAuth, deleteReview);
 export default productRouter;

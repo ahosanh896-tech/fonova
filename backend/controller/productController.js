@@ -661,3 +661,57 @@ export const updateReview = async (req, res) => {
     });
   }
 };
+
+export const deleteReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await productModel.findById(id);
+
+    if (!product || !product.isActive) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    if (!product.reviews || product.reviews.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No reviews found",
+      });
+    }
+
+    const review = product.reviews.find(
+      (r) => r.user.toString() === req.user._id.toString(),
+    );
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
+
+    product.review = product.reviews.filter(
+      (r) => r.user.toString() !== req.user._id.toString(),
+    );
+
+    calculateRating(product);
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Review deleted successfully",
+      rating: product.rating,
+      numReviews: product.numReviews,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
