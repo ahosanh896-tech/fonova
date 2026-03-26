@@ -572,19 +572,20 @@ export const addReview = async (req, res) => {
     );
 
     if (existingReview) {
-      //update review
-      existingReview.rating = Number(rating);
-      existingReview.comment = comment || existingReview.comment;
-    } else {
-      //add new review
-      const newReview = {
-        user: req.user._id,
-        name: req.user.name,
-        rating: Number(rating),
-        comment,
-      };
-      product.reviews.push(newReview);
+      return res.status(400).json({
+        success: false,
+        message: "You already reviewed this porduct.Please update your review.",
+      });
     }
+
+    //add new review
+    const newReview = {
+      user: req.user._id,
+      name: req.user.name,
+      rating: Number(rating),
+      comment,
+    };
+    product.reviews.push(newReview);
 
     calculateRating(product);
 
@@ -592,15 +593,68 @@ export const addReview = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: existingReview
-        ? "Review updated successfully"
-        : "Review added successfully",
+      message: "Review added successfully",
 
       rating: product.rating,
       numReviews: product.numReviews,
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, comment } = req.body;
+
+    if (!rating) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating is required",
+      });
+    }
+
+    const product = await productModel.findById(id);
+
+    if (!product || !product.isActive) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const review = product.review.find(
+      (r) => r.user.toString() === req.user._id.toString(),
+    );
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found. Please add a review frist.",
+      });
+    }
+
+    //update review
+    review.rating = Number(rating);
+    review.comment = comment || review.comment;
+
+    calculateRating(product);
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Review update successfully",
+      rating: product.rating,
+      numReviews: product.numReviews,
+    });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: error.message,

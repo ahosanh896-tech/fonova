@@ -11,6 +11,7 @@ import {
   restoreProduct,
   updateProduct,
   addReview,
+  updateReview,
 } from "../controller/productController.js";
 
 const productRouter = express.Router();
@@ -27,5 +28,6 @@ productRouter.delete("/delete/:id", deleteProduct);
 
 productRouter.put("/restore/:id", restoreProduct);
 
-productRouter.post("/:id/review", userAuth, addReview);
+productRouter.post("/review/:id", userAuth, addReview);
+productRouter.put("/review/:id", userAuth, updateReview);
 export default productRouter;
