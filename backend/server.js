@@ -8,6 +8,7 @@ import connectCloudinary from "./config/cloudinary.js";
 import authRouter from "./routes/authRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
+import cartRouter from "./routes/cartRoutes.js";
 import startCronJobs from "./config/cron.js";
 
 // App config
@@ -35,6 +36,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/cart", cartRouter);
 
 // start server with DB
 const startServer = async () => {
