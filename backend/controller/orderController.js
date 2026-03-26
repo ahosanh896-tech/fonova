@@ -1,6 +1,9 @@
 import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
 
+import orderModel from "../models/orderModel.js";
+import productModel from "../models/productModel.js";
+
 export const placeOrder = async (req, res) => {
   try {
     const { orderItems, shippingAddress, paymentMethod = "COD" } = req.body;
@@ -12,6 +15,7 @@ export const placeOrder = async (req, res) => {
       });
     }
 
+    // fetch order
     const productIds = orderItems.map((item) => item.product);
 
     const products = await productModel.find({
@@ -19,18 +23,24 @@ export const placeOrder = async (req, res) => {
     });
 
     let itemsPrice = 0;
-
+    //order item
     const updatedItems = orderItems.map((item) => {
       const product = products.find((p) => p._id.toString() === item.product);
+
       if (!product) {
-        throw new Error("Product not found");
+        throw new Error("One or more products not found");
       }
-      //final price (with discount)
+
+      //stock check
+      if (product.stock < item.quantity) {
+        throw new Error(`${product.name} is out of stock`);
+      }
+
+      //price calculate
       const price = product.price - (product.price * product.discount) / 100;
 
       itemsPrice += price * item.quantity;
 
-      //order snapshot
       return {
         product: product._id,
         name: product.name,
@@ -41,17 +51,28 @@ export const placeOrder = async (req, res) => {
       };
     });
 
+    //update stock and sold
+    for (const item of orderItems) {
+      const product = products.find((p) => p._id.toString() === item.product);
+
+      if (!product) continue; // safety (already checked above)
+
+      product.stock -= item.quantity;
+      product.sold += item.quantity;
+
+      await product.save();
+    }
+
     const taxPrice = 0;
     const shippingPrice = itemsPrice > 500 ? 0 : 50;
-
     const totalPrice = itemsPrice + taxPrice + shippingPrice;
 
-    //create order
     const order = new orderModel({
       user: req.user._id,
       orderItems: updatedItems,
       shippingAddress,
       paymentMethod,
+      paymentStatus: "pending",
       itemsPrice,
       taxPrice,
       shippingPrice,
@@ -62,11 +83,12 @@ export const placeOrder = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Order placed successfully",
+      message: "Order placed successfully (COD)",
       order: createdOrder,
     });
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
