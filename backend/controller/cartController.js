@@ -40,7 +40,7 @@ export const addToCart = async (req, res) => {
 
     await user.save();
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Product added to cart",
       cart: user.cartData,
@@ -89,7 +89,7 @@ export const updateCart = async (req, res) => {
 
     await user.save();
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Cart updated successfully",
       cart: user.cartData,
@@ -101,7 +101,24 @@ export const updateCart = async (req, res) => {
     });
   }
 };
-export const getUserCart = async (req, res) => {};
+
+export const getUserCart = async (req, res) => {
+  try {
+    const user = await userModel
+      .findById(req.user._id)
+      .populate("cartData.productId");
+
+    res.status(200).json({
+      success: true,
+      cart: user.cartData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 export const removeFromCart = async (req, res) => {};
 
 export const clearCart = async (req, res) => {};
