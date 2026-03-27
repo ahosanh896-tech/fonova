@@ -153,4 +153,22 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
-export const clearCart = async (req, res) => {};
+export const clearCart = async (req, res) => {
+  try {
+    const user = await userModel.findById(req.user._id);
+
+    user.cartData = [];
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Cart cleared successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
