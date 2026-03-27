@@ -119,6 +119,38 @@ export const getUserCart = async (req, res) => {
     });
   }
 };
-export const removeFromCart = async (req, res) => {};
+
+export const removeFromCart = async (req, res) => {
+  try {
+    const { productId, size = "" } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: "Product ID is required",
+      });
+    }
+
+    const user = await userModel.findById(req.user._id);
+
+    user.cartData = user.cartData.filter(
+      (item) =>
+        !(item.productId.toString() === productId && item.size === size),
+    );
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Item removed from cart",
+      cart: user.cartData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const clearCart = async (req, res) => {};
