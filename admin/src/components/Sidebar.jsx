@@ -7,7 +7,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     <div
       className={`fixed top-0 transition-all duration-500
         ${isOpen ? "left-0" : "-left-64"}
-        lg:left-0`}
+        lg:static lg:left-0`}
     >
       <div className="flex flex-col h-screen w-64 px-4 py-6 bg-white border-r border-gray-300 relative">
         <button
