@@ -1,8 +1,19 @@
 import { assets } from "../assets/assets";
-
 import { NavLink } from "react-router-dom";
+import Api from "../api/api";
+import { successToast, errorToast } from "../toast";
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, setUser }) => {
+  const handleLogout = async () => {
+    try {
+      await Api.post("api/auth/logout");
+      setUser(null);
+      successToast("Logged out successfully");
+    } catch (error) {
+      console.log(error);
+      errorToast("Logout failed");
+    }
+  };
   return (
     <div
       className={`fixed top-0 transition-all duration-500
@@ -41,7 +52,10 @@ const Sidebar = ({ isOpen, onClose }) => {
           </NavLink>
         </div>
 
-        <button className=" flex items-center gap-4 mt-auto p-2 mx-2 bg-gray-200 border border-gray-400 rounded-md">
+        <button
+          onClick={handleLogout}
+          className=" flex items-center gap-4 mt-auto p-2 mx-2 bg-gray-200 border border-gray-400 rounded-md"
+        >
           <img className="w-5 h-5 ml-4" src={assets.login} alt="Login" />
           Login
         </button>
