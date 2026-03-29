@@ -7,7 +7,7 @@ import { generateOtp } from "../utils/generateOtp.js";
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 };
 
 export const register = async (req, res) => {
@@ -164,6 +164,11 @@ export const login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Login successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.log("LOGIN ERROR:", error);
@@ -171,11 +176,6 @@ export const login = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error",
-      user: {
-        _id: user._id,
-        name: user.name,
-        role: user.role,
-      },
     });
   }
 };

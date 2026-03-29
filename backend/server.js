@@ -18,10 +18,14 @@ const port = process.env.PORT || 4000;
 // middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend URL
+    origin: [
+      "http://localhost:5173", // user frontend
+      "http://localhost:5174", // admin panel
+    ],
     credentials: true,
   }),
 );
+
 app.use(express.json());
 app.use(cookieParser());
 
