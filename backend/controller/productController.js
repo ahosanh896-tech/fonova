@@ -35,15 +35,24 @@ export const addProduct = async (req, res) => {
 
     //upload to cloudinary
     const images = await Promise.all(
-      files.map(async (file) => {
-        const result = await cloudinary.uploader.upload(file.path, {
-          resource_type: "image",
-        });
-        return {
-          url: result.secure_url,
-          public_id: result.public_id,
-        };
-      }),
+      req.files.map(
+        (file) =>
+          new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { folder: "products" },
+              (error, result) => {
+                if (error) return reject(error);
+
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                });
+              },
+            );
+
+            stream.end(file.buffer);
+          }),
+      ),
     );
 
     const parsedVariants = variants ? JSON.parse(variants) : [];
@@ -258,32 +267,34 @@ export const updateProduct = async (req, res) => {
           (img) => !parsedRemoved.includes(img.public_id),
         );
       } catch (error) {
-        return (
-          res.status(400),
-          json({
-            success: false,
-            message: "Invalid removedImages format",
-          })
-        );
+        return res.status(400).json({
+          success: false,
+          message: "Invalid removedImages format",
+        });
       }
     }
 
     //Add new images
-    if (req.files && req.files.length > 0) {
-      const newImages = await Promise.all(
-        req.files.map(async (file) => {
-          const result = await cloudinary.uploader.upload(file.path, {
-            resource_type: "image",
-          });
+    const newImages = await Promise.all(
+      req.files.map(
+        (file) =>
+          new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { folder: "products" },
+              (error, result) => {
+                if (error) return reject(error);
 
-          return {
-            url: result.secure_url,
-            public_id: result.public_id,
-          };
-        }),
-      );
-      product.images.push(...newImages);
-    }
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                });
+              },
+            );
+
+            stream.end(file.buffer);
+          }),
+      ),
+    );
 
     //safe json parsing
     const safeParse = (data, fallback) => {
@@ -321,11 +332,11 @@ export const updateProduct = async (req, res) => {
       product.isActive = true;
     }
 
-    if (bestseller !== undefined) product.bestseller = bestseller === true;
+    if (bestseller !== undefined) product.bestseller = bestseller === "true";
 
-    if (featured !== undefined) product.featured = featured === true;
+    if (featured !== undefined) product.featured = featured === "true";
 
-    if (newArrival !== undefined) product.newArrival === "true";
+    if (newArrival !== undefined) product.newArrival = newArrival === "true";
 
     await product.save();
 

@@ -1,29 +1,7 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import crypto from "crypto";
 
-const uploadPath = "uploads/";
+const storage = multer.memoryStorage();
 
-// if the file not exist then create one
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
-}
-
-// storage config
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    const uniqueName =
-      crypto.randomBytes(16).toString("hex") + path.extname(file.originalname);
-
-    cb(null, uniqueName);
-  },
-});
-
-// file filter
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
