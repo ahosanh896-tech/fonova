@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 
 const Navbar = ({ onMenuClick }) => {
   return (
-    <div className="relative flex items-center justify-between px-5 py-4 bg-white">
+    <div className="sticky top-0 z-50 relative flex items-center justify-between px-5 py-4 bg-white">
       <div className="flex items-center gap-4">
         <img
           src={assets.menu}

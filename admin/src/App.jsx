@@ -17,7 +17,7 @@ const App = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await Api.get("/api/auth/isAuthenticated");
+        const res = await Api.get("/api/auth/is-auth");
 
         if (res.data?.user?.role === "admin") {
           setUser(res.data.user);
@@ -63,7 +63,7 @@ const App = () => {
               onClose={() => setIsSidebarOpen(false)}
             />
 
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-4 overflow-y-auto">
               <Routes>
                 <Route path="/" element={<Navigate to="/add" />} />
                 <Route path="/add" element={<Add />} />

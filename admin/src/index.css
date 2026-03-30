@@ -7,6 +7,9 @@
 *{
   font-family:outfit;
 }
+::-webkit-scrollbar{
+  display: none;
+}
 
 .active{
   background-color: #ffebf5 ;
