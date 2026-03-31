@@ -11,18 +11,12 @@ const Navbar = ({ onMenuClick }) => {
           className="w-6 h-6 cursor-pointer lg:hidden"
           onClick={onMenuClick}
         />
-
-        <img
-          src={assets.fornova}
-          alt="Logo"
-          className="hidden lg:block w-[150px]"
-        />
       </div>
 
       <img
         src={assets.fornova}
         alt="Logo"
-        className="absolute left-1/2 -translate-x-1/2 w-[120px] lg:hidden"
+        className="absolute block left-1/2 -translate-x-1/2 w-[120px] lg:hidden"
       />
 
       <div className="hidden lg:flex items-center w-[40%]">

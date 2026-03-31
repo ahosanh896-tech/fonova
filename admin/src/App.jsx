@@ -56,14 +56,14 @@ const App = () => {
 
           <hr className="text-gray-300" />
 
-          <div className="flex w-full">
+          <div className="flex">
             <Sidebar
               setUser={setUser}
               isOpen={isSidebarOpen}
               onClose={() => setIsSidebarOpen(false)}
             />
 
-            <div className="flex-1 p-4 overflow-y-auto">
+            <div className="flex-1 p-4 lg:ml-64 overflow-y-auto">
               <Routes>
                 <Route path="/" element={<Navigate to="/add" />} />
                 <Route path="/add" element={<Add />} />
