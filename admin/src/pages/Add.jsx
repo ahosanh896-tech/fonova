@@ -187,8 +187,13 @@ const Add = () => {
               className={`block w-full   py-2 px-4 flex flex-col items-center justify-center text-center cursor-pointer mb-4 lg:py-7 ${imagesPreview[index] ? "" : " border border-gray-600 border-1 rounded border-dashed"}`}
             >
               {dragIndex === index && !imagesPreview[index] ? (
-                <div className="text-blue-500 font-semibold">
-                  Drop image here
+                <div className="text-blue-500 font-semibold ">
+                  <img
+                    src={assets.upload_image}
+                    className="w-16 h-16 mb-2"
+                    alt=""
+                  />
+                  <p>Drop image here</p>
                 </div>
               ) : imagesPreview[index] ? (
                 <div className="relative">
@@ -340,7 +345,7 @@ const Add = () => {
               <h2>Material</h2>
               <input
                 className="border border-gray-300 rounded p-2 w-30 outline-none "
-                type="number"
+                type="text"
                 placeholder="Material"
                 {...register("material")}
               />
@@ -428,7 +433,7 @@ const Add = () => {
                     <h2>Name</h2>
                     <input
                       className="border border-gray-300 rounded p-2 w-full outline-none"
-                      placeholder="Size (M/L)"
+                      placeholder="Name"
                       {...register(`variants.${i}.name`)}
                     />
                   </div>
