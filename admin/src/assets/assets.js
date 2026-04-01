@@ -11,6 +11,7 @@ import logout from "./logout.svg";
 import white_arrow from "./white_arrow.svg";
 import upload_image from "./upload_image.svg";
 import remove from "./remove.svg";
+import remove1 from "./remove1.svg";
 
 import image_hero1 from "./image_hero1.jpg";
 import image_hero2 from "./image_hero2.jpg";
@@ -30,6 +31,7 @@ export const assets = {
   white_arrow,
   upload_image,
   remove,
+  remove1,
 
   image_hero1,
   image_hero2,

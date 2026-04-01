@@ -7,6 +7,7 @@ import { successToast, errorToast } from "../toast";
 const Add = () => {
   const [show, setShow] = useState(false);
   const [imagesPreview, setImagesPreview] = useState([]);
+  const [dragIndex, setDragIndex] = useState(null);
 
   const { register, handleSubmit, control, reset } = useForm({
     defaultValues: {
@@ -55,6 +56,47 @@ const Add = () => {
         append({ file: null });
       }
     }
+  };
+
+  const handleDragOver = (index, e) => {
+    e.preventDefault();
+    setDragIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragIndex(null);
+  };
+
+  const handleDrop = (index, e) => {
+    e.preventDefault();
+    setDragIndex(null);
+
+    const file = e.dataTransfer.files[0];
+
+    if (!file || !file.type.startsWith("image/")) {
+      errorToast("Only images allowed");
+      return;
+    }
+
+    if (file) {
+      const uploaded = [...imagesPreview];
+      uploaded[index] = file;
+      setImagesPreview(uploaded);
+
+      if (index === fields.length - 1 && fields.length < 4) {
+        append({ file: null });
+      }
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    const updated = [...imagesPreview];
+    updated.splice(index, 1);
+    setImagesPreview(updated);
+
+    // remove from react-hook-form field array
+    remove(index);
+    setDragIndex(null);
   };
 
   const onSubmit = async (data) => {
@@ -135,14 +177,38 @@ const Add = () => {
           {fields.map((field, index) => (
             <label
               key={field.id}
+              onDragLeave={handleDragLeave}
+              onDragOver={(e) => {
+                if (!imagesPreview[index]) handleDragOver(index, e);
+              }}
+              onDrop={(e) => {
+                if (!imagesPreview[index]) handleDrop(index, e);
+              }}
               className={`block w-full   py-2 px-4 flex flex-col items-center justify-center text-center cursor-pointer mb-4 lg:py-7 ${imagesPreview[index] ? "" : " border border-gray-600 border-1 rounded border-dashed"}`}
             >
-              {imagesPreview[index] ? (
-                <img
-                  src={URL.createObjectURL(imagesPreview[index])}
-                  alt=""
-                  className="w-40 h-40 object-cover mb-2"
-                />
+              {dragIndex === index && !imagesPreview[index] ? (
+                <div className="text-blue-500 font-semibold">
+                  Drop image here
+                </div>
+              ) : imagesPreview[index] ? (
+                <div className="relative">
+                  <img
+                    src={URL.createObjectURL(imagesPreview[index])}
+                    alt=""
+                    className="w-40 h-40 object-cover mb-2"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage(index);
+                    }}
+                    className="absolute top-[-30px] right-[-40px] text-white rounded-full px-2 py-1 text-xs"
+                  >
+                    <img className="w-2 h-2" src={assets.remove1} alt="" />
+                  </button>
+                </div>
               ) : (
                 <>
                   <img

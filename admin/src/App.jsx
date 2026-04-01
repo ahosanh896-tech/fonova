@@ -31,14 +31,13 @@ const App = () => {
         setLoading(false);
       }
     };
-
     checkAuth();
   }, []);
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen ">
       <Toaster
         position="top-right"
         richColors
@@ -63,7 +62,9 @@ const App = () => {
               onClose={() => setIsSidebarOpen(false)}
             />
 
-            <div className="flex-1 p-4 lg:ml-64 overflow-y-auto">
+            <div
+              className={`flex-1 p-4 lg:ml-64 overflow-y-auto ${isSidebarOpen ? "opacity-50 bg-gray-300" : "opacity-100"} transition-all lg:opacity-100 lg:bg-gray-100 duration-300`}
+            >
               <Routes>
                 <Route path="/" element={<Navigate to="/add" />} />
                 <Route path="/add" element={<Add />} />
