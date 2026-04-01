@@ -19,7 +19,7 @@ import {
 const productRouter = express.Router();
 
 productRouter.post(
-  "/",
+  "/add",
   userAuth,
   isAdmin,
   upload.array("images", 4),

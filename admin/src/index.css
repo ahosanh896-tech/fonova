@@ -12,6 +12,6 @@
 }
 
 .active{
-  background-color: #ffebf5 ;
-  border-color: #C586A5;
+  background: linear-gradient(90deg, #EBF4F5, #B5C6E0); ;
+  
 }

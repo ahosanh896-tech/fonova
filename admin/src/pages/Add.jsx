@@ -1,13 +1,28 @@
 import { useFieldArray, useForm } from "react-hook-form";
 import { assets } from "../assets/assets";
 import { useState } from "react";
+import Api from "../api/api";
+import { successToast, errorToast } from "../toast";
 
 const Add = () => {
   const [show, setShow] = useState(false);
   const [imagesPreview, setImagesPreview] = useState([]);
 
-  const { register, handleSubmit, control } = useForm({
+  const { register, handleSubmit, control, reset } = useForm({
     defaultValues: {
+      name: "",
+      description: "",
+      shortDescription: "",
+      category: "chair",
+      subCategory: "office",
+      brand: "",
+      price: "",
+      discount: "",
+      stock: "",
+      tags: "",
+      bestseller: false,
+      featured: false,
+      newArrival: false,
       images: [{ file: null }],
       variants: [],
     },
@@ -42,8 +57,69 @@ const Add = () => {
     }
   };
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+
+      //Basic fields
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("shortDescription", data.shortDescription);
+      formData.append("category", data.category);
+      formData.append("subCategory", data.subCategory);
+      formData.append("brand", data.brand);
+      formData.append("price", data.price);
+      formData.append("discount", data.discount);
+      formData.append("stock", data.stock);
+
+      //Flage
+      formData.append("bestseller", data.bestseller || false);
+      formData.append("featured", data.featured || false);
+      formData.append("newArrival", data.newArrival || false);
+
+      //Images
+      imagesPreview.forEach((file) => {
+        if (file) {
+          formData.append("images", file);
+        }
+      });
+
+      //Attributes
+      const attributes = {
+        color: data.color,
+        material: data.material,
+        weight: data.weight,
+        length: data.length,
+        width: data.width,
+        height: data.height,
+      };
+
+      formData.append("attributes", JSON.stringify(attributes));
+
+      //Variants
+      formData.append("variants", JSON.stringify(data.variants || []));
+
+      //tags
+      const tagsArray = data.tags
+        ? data.tags.split(",").map((tag) => tag.trim())
+        : [];
+
+      formData.append("tags", JSON.stringify(tagsArray));
+
+      //api call
+      const res = await Api.post("/api/product/add", formData);
+
+      if (res.data.success) {
+        successToast(res.data.message);
+        reset();
+        setImagesPreview([]);
+      } else {
+        errorToast(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      errorToast(error.response?.data?.message || "Failed to add product");
+    }
   };
 
   return (
@@ -85,8 +161,9 @@ const Add = () => {
                 type="file"
                 hidden
                 accept="image/*"
-                {...register(`images.${index}.file`)}
-                onChange={(e) => handleImageChange(index, e)}
+                onChange={(e) => {
+                  handleImageChange(index, e);
+                }}
               />
             </label>
           ))}
