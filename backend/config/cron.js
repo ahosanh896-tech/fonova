@@ -13,8 +13,6 @@ const startCronJobs = () => {
           },
         },
       );
-
-      console.log("Expired OTPs cleaned");
     } catch (error) {
       console.log("CRON ERROR:", error);
     }

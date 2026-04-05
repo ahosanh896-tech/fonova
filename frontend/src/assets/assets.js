@@ -6,6 +6,10 @@ import hero3 from "./hero3.png";
 import hero4 from "./hero4.png";
 import hero5 from "./hero5.png";
 
+import diningImg from "./dining.jpg";
+import livingImg from "./living.jpg";
+import bedroomImg from "./bedroom.jpg";
+
 export const assets = {
   fornova,
   hero1,
@@ -42,4 +46,10 @@ export const products = [
     image: assets.hero5,
     description: "Unwind in cloud-like softness every day.",
   },
+];
+
+export const categories = [
+  { name: "Dining", image: diningImg },
+  { name: "Living", image: livingImg },
+  { name: "Bedroom", image: bedroomImg },
 ];
