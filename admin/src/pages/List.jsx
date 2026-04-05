@@ -5,15 +5,23 @@ import { currency } from "../utils/currency..jsx";
 const List = () => {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
 
-  const fetchList = async () => {
+  const fetchList = async (pageNum = 1) => {
     try {
       setLoading(true);
 
-      const response = await Api.get("/api/product/");
+      const response = await Api.get(`/api/product/?page=${pageNum}&limit=10`);
 
       if (response.data.success) {
-        setList(response.data.products);
+        if (pageNum === 1) {
+          setList(response.data.products);
+        } else {
+          setList((prev) => [...prev, ...response.data.products]);
+        }
+
+        setPages(response.data.pages);
       } else {
         errorToast(response.data.message);
       }
@@ -31,7 +39,8 @@ const List = () => {
 
       if (response.data.success) {
         successToast(response.data.message);
-        fetchList();
+        fetchList(1);
+        setPage(1);
       } else {
         errorToast(response.data.message);
       }
@@ -44,6 +53,12 @@ const List = () => {
   useEffect(() => {
     fetchList();
   }, []);
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchList(nextPage);
+  };
 
   if (loading) {
     return <p className="text-center mt-5">Loading products...</p>;
@@ -84,7 +99,7 @@ const List = () => {
 
             <p>
               {currency}
-              {item.price}
+              {item.finalPrice}
             </p>
 
             <button
@@ -96,6 +111,17 @@ const List = () => {
           </div>
         ))}
       </div>
+
+      {page < pages && (
+        <div>
+          <button
+            onClick={loadMore}
+            className="px-4 py-2 bg-black text-white rounded mt-5"
+          >
+            Load More
+          </button>
+        </div>
+      )}
     </div>
   );
 };

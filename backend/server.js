@@ -19,8 +19,8 @@ const port = process.env.PORT || 4000;
 app.use(
   cors({
     origin: [
-      "http://localhost:5173", // user frontend
-      "http://localhost:5174", // admin panel
+      "http://localhost:6024", // user frontend
+      "http://localhost:6025", // admin panel
     ],
     credentials: true,
   }),

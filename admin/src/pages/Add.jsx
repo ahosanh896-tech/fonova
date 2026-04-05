@@ -9,13 +9,19 @@ const Add = () => {
   const [imagesPreview, setImagesPreview] = useState([]);
   const [dragIndex, setDragIndex] = useState(null);
 
-  const { register, handleSubmit, control, reset } = useForm({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: {
       name: "",
       description: "",
       shortDescription: "",
-      category: "chair",
-      subCategory: "office",
+      category: "dining",
+      subCategory: "chair",
       brand: "",
       price: "",
       discount: "",
@@ -250,18 +256,22 @@ const Add = () => {
             <input
               className="border border-1 w-full max-w-md p-1 outline-none border-gray-300 rounded px-4"
               placeholder="Name"
-              {...register("name")}
+              {...register("name", { required: "Name is required" })}
             />
           </div>
           <textarea
             className="border w-full max-w-md p-2 outline-none border-gray-300 rounded px-4 min-h-[100px]  resize-none"
             placeholder="Description"
-            {...register("description")}
+            {...register("description", {
+              required: "Description is required",
+            })}
           />
           <textarea
             className="border w-full max-w-md p-2 outline-none border-gray-300 rounded px-4 min-h-[50px]  resize-none"
             placeholder="shortDescription"
-            {...register("shortDescription")}
+            {...register("shortDescription", {
+              required: "shortDescription is required",
+            })}
           />
           {/* -------------- */}
           {/* CATEGORY */}
@@ -270,11 +280,14 @@ const Add = () => {
               <h2 className=" text-gray-700 ">Category</h2>
               <select
                 className="border border-gray-300 rounded p-2 w-30"
-                {...register("category")}
+                {...register("category", { required: "Category is required" })}
               >
-                <option value="chair">Chair</option>
-                <option value="table">Table</option>
-                <option value="sofa">Sofa</option>
+                <option value="" disabled>
+                  Select category
+                </option>
+                <option value="dining">Dining</option>
+                <option value="living">Living</option>
+                <option value="bedroom">Bedroom</option>
               </select>
             </div>
             <div>
@@ -283,8 +296,13 @@ const Add = () => {
                 className="border border-gray-300 rounded p-2 w-30"
                 {...register("subCategory")}
               >
-                <option value="office">Office</option>
-                <option value="home">Home</option>
+                <option value="" disabled>
+                  Select sub category
+                </option>
+                <option value="chair">Chair</option>
+                <option value="table">Table</option>
+                <option value="sofa">Sofa</option>
+                <option value="bed">Bed</option>
               </select>{" "}
             </div>
             <div>
@@ -304,7 +322,10 @@ const Add = () => {
                 className="border border-gray-300 rounded p-2 w-30 outline-none "
                 type="number"
                 placeholder="Price"
-                {...register("price")}
+                {...register("price", {
+                  required: "Price is required",
+                  min: { value: 1, message: "Price must be greater than 0" },
+                })}
               />
             </div>
             <div>
@@ -322,7 +343,10 @@ const Add = () => {
                 className="border border-gray-300 rounded p-2 w-30 outline-none "
                 type="number"
                 placeholder="Stock"
-                {...register("stock")}
+                {...register("stock", {
+                  required: "Stock is required",
+                  min: { value: 0, message: "Stock can't be negative" },
+                })}
               />
             </div>
           </div>
@@ -497,10 +521,18 @@ const Add = () => {
 
           <br />
           <button
-            className="w-full max-w-md bg-black text-white p-2 sm:p-3 mb-30 "
             type="submit"
+            disabled={isSubmitting}
+            className={`flex items-center justify-between w-full max-w-md py-2 px-4 rounded text-white ${
+              isSubmitting ? "bg-gray-400" : "bg-black hover:bg-gray-800"
+            }`}
           >
-            ADD PRODUCT
+            {isSubmitting ? "ADD PRODUCT..." : "ADD PRODUCT"}
+            <img
+              src={assets.white_arrow}
+              alt="Arrow"
+              className="w-4 h-4 mr-2"
+            />
           </button>
         </div>
       </div>
