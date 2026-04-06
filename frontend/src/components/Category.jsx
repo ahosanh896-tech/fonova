@@ -1,12 +1,13 @@
 import React from "react";
 import { categories } from "../assets/assets";
+import Title from "./Title";
 
 const Categories = ({ setSelectedCategory }) => {
   return (
     <div className="px-4 sm:px-8 lg:px-16 py-10">
       {/* Title */}
-      <div className="text-center mb-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold">Browse The Range</h2>
+      <div className="text-center mb-8 text-3xl">
+        <Title className="" text1={"Browse"} text2={"The Range"} />
         <p className="text-gray-500 text-sm sm:text-base mt-2">
           Discover furniture by category
         </p>
