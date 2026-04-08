@@ -6,7 +6,7 @@ import hero3 from "./hero3.png";
 import hero4 from "./hero4.png";
 import hero5 from "./hero5.png";
 
-import diningImg from "./dining.jpg";
+import diningImg from "./dining.png";
 import livingImg from "./living.jpg";
 import bedroomImg from "./bedroom.jpg";
 
@@ -23,18 +23,17 @@ export const products = [
   {
     name: "Nordic Dining Set",
     image: assets.hero1,
-    description: "Create warm, stylish moments around every meal.",
+    description: "Create warm and stylish moments around every meal daily.",
   },
   {
     name: "Aura Sculpt Chair",
     image: assets.hero2,
-    description: "Turn any corner into a bold, artistic statement.",
+    description: "Turn any space into a bold and artistic statement piece.",
   },
   {
     name: "Crimson Lounge Duo",
     image: assets.hero3,
-    description:
-      "Relax in style with a perfect blend of comfort and modern design.",
+    description: "Relax in comfort with a perfect blend of modern style.",
   },
   {
     name: "Midnight Luxe Sofa",
@@ -44,7 +43,7 @@ export const products = [
   {
     name: "Cloud Haven Sofa",
     image: assets.hero5,
-    description: "Unwind in cloud-like softness every day.",
+    description: "Unwind daily in soft comfort with a calm modern touch.",
   },
 ];
 
