@@ -3,6 +3,13 @@
 
 @import "tailwindcss";
 
+.toast-success {
+  @apply bg-green-100 text-green-800 border border-green-300;
+}
+
+.toast-error {
+  @apply bg-red-100 text-red-800 border border-red-300;
+}
 a.active hr{
   display:block;
 }
@@ -10,6 +17,10 @@ a.active hr{
 *{
   font-family: Outfit;
 }
+
+/* global.css */
+
+
 
 ::-webkit-scrollbar{
   display: none;

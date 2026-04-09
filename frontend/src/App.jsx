@@ -9,9 +9,14 @@ const App = () => {
       <Toaster
         position="top-right"
         richColors
+        expand
+        closeButton
         toastOptions={{
+          duration: 3000,
           style: {
-            borderRadius: "10px",
+            borderRadius: "12px",
+            padding: "14px 16px",
+            fontSize: "14px",
           },
         }}
       />
