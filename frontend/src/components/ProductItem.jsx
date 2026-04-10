@@ -10,8 +10,10 @@ export const ProductItem = ({
   discount,
   finalPrice,
   category,
+  showDiscount = true, // 👈 new prop (default true)
 }) => {
   const { currency } = useContext(ShopContext);
+
   return (
     <Link
       to={`/product/${id}`}
@@ -19,18 +21,18 @@ export const ProductItem = ({
         shadow-sm hover:shadow-md hover:bg-gray-200 
         transition duration-300"
     >
-      {/* Image Section */}
       <div className="relative overflow-hidden">
         <img
           src={image}
           alt={name}
-          className="w-full h-56  object-cover group-hover:scale-105 transition duration-300"
+          className="w-full h-56 object-cover group-hover:scale-105 transition duration-300"
         />
 
-        {/* Example Badge */}
-        <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-          - {discount}%
-        </span>
+        {showDiscount && discount && (
+          <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+            - {discount}%
+          </span>
+        )}
       </div>
 
       {/* Content */}
@@ -39,13 +41,22 @@ export const ProductItem = ({
         <p className="text-sm text-gray-500">{category}</p>
 
         <div className="mt-2">
-          <span className="font-semibold text-gray-900">
-            {currency}
-            {finalPrice}
-          </span>
-          <span className="text-gray-400 text-sm line-through ml-2">
-            {price}
-          </span>
+          {showDiscount && finalPrice ? (
+            <>
+              <span className="font-semibold text-gray-900">
+                {currency}
+                {finalPrice}
+              </span>
+              <span className="text-gray-400 text-sm line-through ml-2">
+                {price}
+              </span>
+            </>
+          ) : (
+            <span className="font-semibold text-gray-900">
+              {currency}
+              {price}
+            </span>
+          )}
         </div>
       </div>
     </Link>

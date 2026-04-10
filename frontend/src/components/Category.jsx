@@ -137,7 +137,7 @@ const Categories = ({ setSelectedCategory }) => {
             <div
               key={index}
               onClick={() => setSelectedCategory(categories[realIndex].name)}
-              className={`snap-center flex-shrink-0 w-[75%] cursor-pointer 
+              className={`snap-center shrink-0 w-[75%] cursor-pointer 
               transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] 
               will-change-transform ${
                 index === activeIndex
@@ -146,7 +146,7 @@ const Categories = ({ setSelectedCategory }) => {
               }`}
             >
               {/* Image */}
-              <div className="rounded-2xl overflow-hidden aspect-[3/4] bg-gray-100">
+              <div className="rounded-2xl overflow-hidden aspect-3/4 bg-gray-100">
                 <img
                   src={item.image}
                   alt={item.name}
