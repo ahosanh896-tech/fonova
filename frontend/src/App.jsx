@@ -2,6 +2,9 @@ import React from "react";
 import { Toaster } from "sonner";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
+import Footer from "./components/Footer";
+import { Routes, Route } from "react-router-dom";
+import Collection from "./pages/Collection";
 
 const App = () => {
   return (
@@ -21,7 +24,12 @@ const App = () => {
         }}
       />
       <Navbar />
-      <Home />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/collection" element={<Collection />} />
+      </Routes>
+
+      <Footer />
     </div>
   );
 };

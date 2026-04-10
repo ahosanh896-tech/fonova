@@ -1,4 +1,5 @@
 import fornova from "./fornova.svg";
+import fornova_word from "./fornova_word.svg";
 
 import hero1 from "./hero1.png";
 import hero2 from "./hero2.png";
@@ -12,6 +13,7 @@ import bedroomImg from "./bedroom.jpg";
 
 export const assets = {
   fornova,
+  fornova_word,
   hero1,
   hero2,
   hero3,
