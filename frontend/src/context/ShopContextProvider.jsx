@@ -1,11 +1,13 @@
-import { shopContext } from "./ShopContext";
-import { api } from "../api/api";
-import { shopContext } from "./ShopContext";
+import { ShopContext } from "./ShopContext";
 
-import React from "react";
+const ShopContextProvider = ({ children }) => {
+  const currency = "$";
 
-const ShopContextProvider = () => {
-  return <div></div>;
+  const value = {
+    currency,
+  };
+
+  return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 };
 
 export default ShopContextProvider;
