@@ -26,7 +26,7 @@ const OurProduct = () => {
             {products.map((item) => (
               <ProductItem
                 key={item._id}
-                id={item._id}
+                id={item.slug}
                 image={item.images?.[0]?.url}
                 category={item.category}
                 discount={item.discount}
