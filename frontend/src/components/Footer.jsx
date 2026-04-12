@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <div>
       <hr className="text-gray-300 mt-5" />
-      <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 mb-10 mt-20 px-6 text-sm">
+      <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 mb-10 mt-10 px-6 text-sm">
         {/* Brand Section */}
         <div>
           <img

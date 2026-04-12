@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
 import Collection from "./pages/Collection";
+import ScrollManager from "./components/ScrollManager";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
           },
         }}
       />
+      <ScrollManager />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />

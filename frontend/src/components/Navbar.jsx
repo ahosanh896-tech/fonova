@@ -8,7 +8,7 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false);
 
   return (
-    <div className="flex items-center justify-between py-5 font-medium">
+    <div className="flex items-center justify-between py-5 font-medium ">
       {/* logo */}
       <Link to="/">
         <img src={assets.fornova} alt="" className="w-40" />
