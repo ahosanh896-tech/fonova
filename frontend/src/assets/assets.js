@@ -7,6 +7,8 @@ import hero3 from "./hero3.png";
 import hero4 from "./hero4.png";
 import hero5 from "./hero5.png";
 
+import shop_hero from "./shop_hero.png";
+
 import diningImg from "./dining.png";
 import livingImg from "./living.jpg";
 import bedroomImg from "./bedroom.jpg";
@@ -19,6 +21,8 @@ export const assets = {
   hero3,
   hero4,
   hero5,
+
+  shop_hero,
 };
 
 export const products = [

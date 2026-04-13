@@ -4,15 +4,18 @@ import Categories from "../components/Category";
 import OurProduct from "../components/OurProduct";
 import BestSeller from "../components/BestSeller";
 import OurPolicy from "../components/OurPolicy";
+import Container from "../components/Container";
 
 const Home = () => {
   return (
     <div>
-      <Hero />
-      <Categories />
-      <OurProduct />
-      <BestSeller />
-      <OurPolicy />
+      <Container>
+        <Hero />
+        <Categories />
+        <OurProduct />
+        <BestSeller />
+        <OurPolicy />
+      </Container>
     </div>
   );
 };

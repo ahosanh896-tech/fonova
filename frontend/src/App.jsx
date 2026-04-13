@@ -9,7 +9,7 @@ import ScrollManager from "./components/ScrollManager";
 
 const App = () => {
   return (
-    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div>
       <Toaster
         position="top-right"
         richColors
