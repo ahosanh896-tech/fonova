@@ -11,7 +11,7 @@ const OurProduct = () => {
 
   useEffect(() => {
     fetchProducts(1, LIMIT);
-  }, [fetchProducts]);
+  }, [fetchProducts, LIMIT]);
 
   return (
     <div>

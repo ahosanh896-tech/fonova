@@ -11,7 +11,10 @@ export const useBestSeller = () => {
     try {
       setLoading(true);
 
-      const data = await bestSellerApi(pageNum, limit);
+      const data = await bestSellerApi({
+        page: pageNum,
+        ...(limit && { limit }),
+      });
 
       if (data.success) {
         if (pageNum === 1) {

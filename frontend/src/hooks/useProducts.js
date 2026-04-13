@@ -12,7 +12,10 @@ export const useProducts = () => {
     try {
       setLoading(true);
 
-      const data = await getProducts(pageNum, limit);
+      const data = await getProducts({
+        page: pageNum,
+        ...(limit && { limit }),
+      });
 
       if (data.success) {
         if (pageNum === 1) {

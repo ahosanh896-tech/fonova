@@ -116,7 +116,12 @@ export const getProducts = async (req, res) => {
     }
 
     if (category) {
-      query.category = category;
+      if (category) {
+        query.category = {
+          $regex: category,
+          $options: "i",
+        };
+      }
     }
 
     //price filter
