@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import ShopHero from "../components/ShopHero";
 import Container from "../components/Container";
 import { useProducts } from "../hooks/useProducts";
@@ -11,7 +11,8 @@ const Collection = () => {
   const loaderRef = useRef(null);
 
   const { register, control } = useForm();
-  const { products, loading, fetchProducts, total, pages } = useProducts();
+  const { products, loading, fetchProducts, total, pages, clearProducts } =
+    useProducts();
 
   // Watch filters
   const category = useWatch({ control, name: "category" });
@@ -24,33 +25,33 @@ const Collection = () => {
 
   const limit = 10;
 
-  // Showing count
-  const start = total === 0 ? 0 : (page - 1) * limit + 1;
-  const end = total === 0 ? 0 : start + products.length - 1;
-
-  useEffect(() => {
-    setPage(1);
-  }, [category, subCategory, minPrice, maxPrice, sortType]);
-
-  // Fetch products
-  useEffect(() => {
-    fetchProducts(page, limit, {
+  // Memoize filters to reduce effect runs
+  const filters = useMemo(
+    () => ({
       category,
       subCategory,
       minPrice,
       maxPrice,
       sortType,
-    });
-  }, [
-    fetchProducts,
-    page,
-    limit,
-    category,
-    subCategory,
-    minPrice,
-    maxPrice,
-    sortType,
-  ]);
+    }),
+    [category, subCategory, minPrice, maxPrice, sortType],
+  );
+
+  // Showing count
+  const start = total === 0 ? 0 : (page - 1) * limit + 1;
+  const end = total === 0 ? 0 : start + products.length - 1;
+
+  // Reset page and clear products when filters change
+  useEffect(() => {
+    clearProducts();
+    setPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(filters)]);
+
+  // Fetch products when page changes
+  useEffect(() => {
+    fetchProducts(page, limit, filters);
+  }, [fetchProducts, page, limit, filters]);
 
   // Infinite scroll
   useEffect(() => {

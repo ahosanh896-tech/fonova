@@ -1,5 +1,5 @@
 // src/hooks/useProducts.js
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { getProducts } from "../api/productApi";
 import { errorToast } from "../Toast";
 
@@ -8,10 +8,17 @@ export const useProducts = () => {
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
+  const generationRef = useRef(0);
+
+  const clearProducts = useCallback(() => {
+    setProducts([]);
+    generationRef.current += 1;
+  }, []);
 
   const fetchProducts = useCallback(
     async (pageNum = 1, limit, filters = {}) => {
       try {
+        const currentGeneration = generationRef.current;
         setLoading(true);
 
         const data = await getProducts({
@@ -36,6 +43,12 @@ export const useProducts = () => {
                     : undefined,
           }),
         });
+
+        // Discard results if filters have changed (generation mismatch)
+        if (currentGeneration !== generationRef.current) {
+          setLoading(false);
+          return;
+        }
 
         if (data.success) {
           if (pageNum === 1) {
@@ -63,5 +76,5 @@ export const useProducts = () => {
     [],
   );
 
-  return { products, pages, total, loading, fetchProducts };
+  return { products, pages, total, loading, fetchProducts, clearProducts };
 };
