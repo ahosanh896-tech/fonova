@@ -102,6 +102,7 @@ export const getProducts = async (req, res) => {
     const {
       keyword,
       category,
+      subCategory,
       minPrice,
       maxPrice,
       sort,
@@ -116,12 +117,17 @@ export const getProducts = async (req, res) => {
     }
 
     if (category) {
-      if (category) {
-        query.category = {
-          $regex: category,
-          $options: "i",
-        };
-      }
+      query.category = {
+        $regex: category,
+        $options: "i",
+      };
+    }
+
+    if (subCategory) {
+      query.subCategory = {
+        $regex: subCategory,
+        $options: "i",
+      };
     }
 
     //price filter
@@ -138,7 +144,7 @@ export const getProducts = async (req, res) => {
     let sortOption = {};
     if (sort === "price_asc") sortOption.price = 1;
     if (sort === "price_desc") sortOption.price = -1;
-    if (sort === "newest") sortOption.createAt = -1;
+    if (sort === "newest") sortOption.createdAt = -1;
 
     //pagination
     const skip = (Number(page) - 1) * Number(limit);
@@ -155,7 +161,7 @@ export const getProducts = async (req, res) => {
       success: true,
       total,
       page: Number(page),
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / Number(limit)),
       products,
     });
   } catch (error) {
