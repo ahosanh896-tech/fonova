@@ -23,7 +23,7 @@ const Collection = () => {
 
   const sortType = useWatch({ control, name: "sortType" });
 
-  const limit = 10;
+  const limit = 20;
 
   // Memoize filters to reduce effect runs
   const filters = useMemo(
