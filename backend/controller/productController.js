@@ -465,7 +465,7 @@ export const compareProducts = async (req, res) => {
     const productIds = ids.split(",").map((item) => item.trim());
 
     //limit max compare
-    if (item.length > 4) {
+    if (productIds.length > 4) {
       return res.status(400).json({
         success: false,
         message: "You can compare up to 4 products only",
@@ -474,7 +474,7 @@ export const compareProducts = async (req, res) => {
 
     const products = await productModel
       .find({
-        $or: [{ _id: { $in: productIds } }, { slug: { $in: items } }],
+        $or: [{ _id: { $in: productIds } }, { slug: { $in: productIds } }],
         isActive: true,
       })
       .select(
