@@ -650,7 +650,7 @@ export const updateReview = async (req, res) => {
       });
     }
 
-    const review = product.review.find(
+    const review = product.reviews.find(
       (r) => r.user.toString() === req.user._id.toString(),
     );
 
@@ -715,7 +715,7 @@ export const deleteReview = async (req, res) => {
       });
     }
 
-    product.review = product.reviews.filter(
+    product.reviews = product.reviews.filter(
       (r) => r.user.toString() !== req.user._id.toString(),
     );
 
