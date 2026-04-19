@@ -137,9 +137,11 @@ const Add = () => {
         color: data.color,
         material: data.material,
         weight: data.weight,
-        length: data.length,
-        width: data.width,
-        height: data.height,
+        dimensions: {
+          length: data.length,
+          width: data.width,
+          height: data.height,
+        },
       };
 
       formData.append("attributes", JSON.stringify(attributes));
@@ -190,7 +192,7 @@ const Add = () => {
               onDrop={(e) => {
                 if (!imagesPreview[index]) handleDrop(index, e);
               }}
-              className={`block w-full   py-2 px-4 flex flex-col items-center justify-center text-center cursor-pointer mb-4 lg:py-7 ${imagesPreview[index] ? "" : " border border-gray-600 border-1 rounded border-dashed"}`}
+              className={` w-full   py-2 px-4 flex flex-col items-center justify-center text-center cursor-pointer mb-4 lg:py-7 ${imagesPreview[index] ? "" : " border border-gray-600 rounded border-dashed"}`}
             >
               {dragIndex === index && !imagesPreview[index] ? (
                 <div className="text-blue-500 font-semibold ">
@@ -254,7 +256,7 @@ const Add = () => {
             </h2>
 
             <input
-              className="border border-1 w-full max-w-md p-1 outline-none border-gray-300 rounded px-4"
+              className="border w-full max-w-md p-1 outline-none border-gray-300 rounded px-4"
               placeholder="Name"
               {...register("name", { required: "Name is required" })}
             />

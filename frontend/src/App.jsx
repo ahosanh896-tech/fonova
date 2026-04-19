@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
 import Collection from "./pages/Collection";
 import ScrollManager from "./components/ScrollManager";
-import Product from "./pages/Product";
+import { Product } from "./pages/Product";
 
 const App = () => {
   return (

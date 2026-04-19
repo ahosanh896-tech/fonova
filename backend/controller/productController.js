@@ -78,7 +78,7 @@ export const addProduct = async (req, res) => {
       variants: parsedVariants,
       compareFields: parsedComparedFields,
       tags: parsedTags,
-      createBy: req.user?._id, // Admin auth not exists right now
+      createdBy: req.user?._id, // Admin auth not exists right now
     });
 
     await product.save();
