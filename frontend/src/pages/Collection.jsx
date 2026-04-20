@@ -5,12 +5,14 @@ import { useProducts } from "../hooks/useProducts";
 import { ProductItem } from "../components/ProductItem";
 import { useForm, useWatch } from "react-hook-form";
 import { LineVertical } from "../Icon";
+import { useLocation } from "react-router-dom";
 
 const Collection = () => {
   const [page, setPage] = useState(1);
   const loaderRef = useRef(null);
+  const location = useLocation();
 
-  const { register, control } = useForm();
+  const { register, control, setValue } = useForm();
   const { products, loading, fetchProducts, total, pages, clearProducts } =
     useProducts();
 
@@ -40,6 +42,12 @@ const Collection = () => {
   // Showing count
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
   const end = total === 0 ? 0 : start + products.length - 1;
+
+  useEffect(() => {
+    if (location.state?.category) {
+      setValue("category", location.state.category);
+    }
+  }, [location.state, setValue]);
 
   // Reset page and clear products when filters change
   useEffect(() => {

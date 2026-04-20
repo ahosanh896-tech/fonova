@@ -1,14 +1,23 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { categories } from "../assets/assets";
 import Title from "./Title";
+import { useNavigate } from "react-router-dom";
 
-const Categories = ({ setSelectedCategory }) => {
+const Categories = () => {
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
 
   const total = categories.length;
   const extended = [...categories, ...categories, ...categories];
 
   const [activeIndex, setActiveIndex] = useState(total);
+
+  //Navigate to collection page with category
+  const handleCategoryClick = (name) => {
+    navigate("/collection", {
+      state: { category: name.toLowerCase() },
+    });
+  };
 
   //smooth horizontal scroll only
   const scrollToIndex = useCallback((index, behavior = "smooth") => {
@@ -136,7 +145,7 @@ const Categories = ({ setSelectedCategory }) => {
           return (
             <div
               key={index}
-              onClick={() => setSelectedCategory(categories[realIndex].name)}
+              onClick={() => handleCategoryClick(categories[realIndex].name)}
               className={`snap-center shrink-0 w-[75%] cursor-pointer 
               transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] 
               will-change-transform ${
@@ -170,7 +179,7 @@ const Categories = ({ setSelectedCategory }) => {
         {categories.map((item, index) => (
           <div
             key={index}
-            onClick={() => setSelectedCategory(item.name)}
+            onClick={() => handleCategoryClick(item.name)}
             className="group cursor-pointer"
           >
             <div className="overflow-hidden rounded-xl">
