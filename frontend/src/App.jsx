@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
 import Collection from "./pages/Collection";
-import ScrollManager from "./components/ScrollManager";
+
 import { Product } from "./pages/Product";
 
 const App = () => {
@@ -25,13 +25,14 @@ const App = () => {
           },
         }}
       />
-      <ScrollManager />
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/collection" element={<Collection />} />
-        <Route path="/product/:slug" element={<Product />} />
-      </Routes>
+      <div className="pt-20">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/product/:slug" element={<Product />} />
+        </Routes>
+      </div>
 
       <Footer />
     </div>
