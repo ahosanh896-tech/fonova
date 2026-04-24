@@ -94,6 +94,7 @@ export const register = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "OTP sent to email. Please verify your account",
+      verifyOtpExpireAt: user.verifyOtpExpireAt,
     });
   } catch (error) {
     console.log("REGISTER ERROR:", error);
@@ -290,9 +291,10 @@ export const resendOtp = async (req, res) => {
       text: `Your OTP is ${otp}`,
     });
 
-    res.json({
+    return res.status(200).json({
       success: true,
       message: "OTP resent",
+      verifyOtpExpireAt: user.verifyOtpExpireAt,
     });
   } catch (error) {
     console.log("RESENT ERROR:", error);

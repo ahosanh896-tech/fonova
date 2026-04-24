@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
 import Collection from "./pages/Collection";
+import Authpage from "./pages/AuthPage";
 
 import { Product } from "./pages/Product";
 
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:slug" element={<Product />} />
+          <Route path="/login" element={<Authpage />} />
         </Routes>
       </div>
 

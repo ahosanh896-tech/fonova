@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { Cart, Menu, RightArrow, Search, UserIcon } from "../Icon";
+import UserMenu from "./UserMenu";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [hasShadow, setHasShadow] = useState(false);
+
+  // for dropdown
 
   // scroll to top
   const scrollToTop = () => {
@@ -93,7 +96,7 @@ const Navbar = () => {
           {/* right icons */}
           <div className="flex items-center gap-6">
             <Search className="w-5 cursor-pointer" />
-            <UserIcon className="w-5 cursor-pointer" />
+            <UserMenu />
 
             <Link to="/cart" className="relative">
               <Cart />
