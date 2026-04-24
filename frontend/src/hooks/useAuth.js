@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { loginApi, logoutApi, registerApi } from "../api/authApi";
+import { loginApi, logoutApi, registerApi, verifyOtpApi } from "../api/authApi";
 import { errorToast, successToast } from "../Toast";
 
 export const useAuth = () => {
@@ -36,6 +36,7 @@ export const useAuth = () => {
       } else {
         errorToast(data.message);
       }
+      return data;
     } catch (error) {
       errorToast(error.response?.data?.message || error.message);
     } finally {
@@ -60,5 +61,24 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  });
+  }, []);
+
+  const verifyOtp = useCallback(async (payload) => {
+    try {
+      setLoading(true);
+
+      const data = await verifyOtpApi(payload);
+
+      if (data.success) {
+        successToast(data.message);
+      } else {
+        errorToast(data.message);
+      }
+      return data;
+    } catch (error) {
+      errorToast(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 };
