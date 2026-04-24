@@ -4,6 +4,7 @@ import {
   logoutApi,
   registerApi,
   resendOtpApi,
+  sendResetOtpApi,
   verifyOtpApi,
 } from "../api/authApi";
 import { errorToast, successToast } from "../Toast";
@@ -93,6 +94,25 @@ export const useAuth = () => {
       setLoading(true);
 
       const data = await resendOtpApi(payload);
+
+      if (data.success) {
+        successToast(data.message);
+      } else {
+        errorToast(data.message);
+      }
+      return data;
+    } catch (error) {
+      errorToast(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const sendResetOtp = useCallback(async (payload) => {
+    try {
+      setLoading(true);
+
+      const data = await sendResetOtpApi(payload);
 
       if (data.success) {
         successToast(data.message);
