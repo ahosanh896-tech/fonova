@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import {
+  isAuthApi,
   loginApi,
   logoutApi,
   registerApi,
@@ -124,6 +125,20 @@ export const useAuth = () => {
       errorToast(error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const checkAuth = useCallback(async () => {
+    try {
+      const data = await isAuthApi();
+
+      if (data.success) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      setUser(null);
     }
   }, []);
 };
