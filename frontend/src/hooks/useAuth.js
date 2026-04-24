@@ -5,6 +5,7 @@ import {
   logoutApi,
   registerApi,
   resendOtpApi,
+  resetPasswordApi,
   sendResetOtpApi,
   verifyOtpApi,
 } from "../api/authApi";
@@ -128,6 +129,24 @@ export const useAuth = () => {
     }
   }, []);
 
+  const resetPassword = useCallback(async (payload) => {
+    try {
+      setLoading(true);
+      const data = await resetPasswordApi(payload);
+
+      if (data.success) {
+        successToast(data.message);
+      } else {
+        errorToast(data.message);
+      }
+      return data;
+    } catch (err) {
+      errorToast(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const checkAuth = useCallback(async () => {
     try {
       const data = await isAuthApi();
@@ -137,8 +156,21 @@ export const useAuth = () => {
       } else {
         setUser(null);
       }
-    } catch (error) {
+    } catch {
       setUser(null);
     }
   }, []);
+
+  return {
+    loading,
+    user,
+    register,
+    login,
+    logout,
+    verifyOtp,
+    resendOtp,
+    sendResetOtp,
+    resetPassword,
+    checkAuth,
+  };
 };
