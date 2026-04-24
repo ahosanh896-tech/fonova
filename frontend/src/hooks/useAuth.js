@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
-import { registerApi } from "../api/authApi";
+import { loginApi, logoutApi, registerApi } from "../api/authApi";
 import { errorToast, successToast } from "../Toast";
 
-const useAuth = () => {
+export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
 
@@ -24,4 +24,41 @@ const useAuth = () => {
       setLoading(false);
     }
   }, []);
+
+  const login = useCallback(async (payload) => {
+    try {
+      setLoading(true);
+      const data = await loginApi(payload);
+
+      if (data.success) {
+        setUser(data.user);
+        successToast(data.message);
+      } else {
+        errorToast(data.message);
+      }
+    } catch (error) {
+      errorToast(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const data = await logoutApi();
+
+      if (data.success) {
+        setUser(null);
+        successToast(data.message);
+      } else {
+        errorToast(data.message);
+      }
+    } catch (error) {
+      errorToast(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  });
 };
