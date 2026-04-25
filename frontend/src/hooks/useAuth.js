@@ -15,7 +15,7 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
 
-  const register = useCallback(async (payload) => {
+  const registerUser = useCallback(async (payload) => {
     try {
       setLoading(true);
       const data = await registerApi(payload);
@@ -164,7 +164,7 @@ export const useAuth = () => {
   return {
     loading,
     user,
-    register,
+    registerUser,
     login,
     logout,
     verifyOtp,

@@ -139,6 +139,7 @@ export const login = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: "Please verify your email first",
+        code: "EMAIL_NOT_VERIFIED",
       });
     }
 

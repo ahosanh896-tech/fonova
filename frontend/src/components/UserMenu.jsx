@@ -40,16 +40,6 @@ const UserMenu = () => {
       {user && open && (
         <div className="absolute right-0 mt-3 w-40 bg-white shadow-lg rounded-lg border z-50">
           <div className="flex flex-col text-sm text-gray-700">
-            {/* Show only if not verified */}
-            {!user?.isAccountVerified && (
-              <button
-                onClick={() => navigate("/verify-otp")}
-                className="px-4 py-2 text-left hover:bg-gray-100"
-              >
-                Verify Account
-              </button>
-            )}
-
             <button
               onClick={() => navigate("/orders")}
               className="px-4 py-2 text-left hover:bg-gray-100"
