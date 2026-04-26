@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import "dotenv/config";
+import { connectRedis } from "./config/redis.js";
 
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
@@ -46,6 +47,9 @@ app.use("/api/cart", cartRouter);
 const startServer = async () => {
   try {
     await connectDB();
+
+    await connectRedis();
+
     connectCloudinary();
 
     app.listen(port, () => {

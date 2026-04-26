@@ -1,6 +1,7 @@
 import productModel from "../models/productModel.js";
 import { cloudinary } from "../config/cloudinary.js";
 import calculateRating from "../utils/calculateRating.js";
+import redisClient from "../config/redis.js";
 
 export const addProduct = async (req, res) => {
   try {
@@ -110,6 +111,16 @@ export const getProducts = async (req, res) => {
       limit = 10,
     } = req.query;
 
+    //Redis key
+    const PREFIX = "fornova";
+    const cacheKey = `${PREFIX}:products:${JSON.stringify(req.query)}`;
+
+    //Check cache first
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
+
     let query = {};
 
     if (keyword) {
@@ -157,13 +168,18 @@ export const getProducts = async (req, res) => {
 
     const total = await productModel.countDocuments(query);
 
-    res.json({
+    const response = {
       success: true,
       total,
       page: Number(page),
       pages: Math.ceil(total / Number(limit)),
       products,
-    });
+    };
+
+    // Store in Redis for (60 seconds)
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
+
+    res.json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -350,6 +366,19 @@ export const updateProduct = async (req, res) => {
     if (newArrival !== undefined) product.newArrival = newArrival === "true";
 
     await product.save();
+
+    const stream = redisClient.scanIterator({
+      MATCH: "fornova:products:*",
+    });
+
+    const keys = [];
+    for await (const key of stream) {
+      keys.push(key);
+    }
+
+    if (keys.length) {
+      await redisClient.del(keys);
+    }
 
     res.json({
       success: true,
