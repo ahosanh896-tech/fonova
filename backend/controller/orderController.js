@@ -99,7 +99,7 @@ export const placeOrder = async (req, res) => {
 
 export const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user._Id;
+    const userId = req.user._id;
 
     const orders = await orderModel
       .find({ user: userId })

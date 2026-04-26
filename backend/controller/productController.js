@@ -2,6 +2,7 @@ import productModel from "../models/productModel.js";
 import { cloudinary } from "../config/cloudinary.js";
 import calculateRating from "../utils/calculateRating.js";
 import redisClient from "../config/redis.js";
+import { clearProductCache } from "../utils/cacheHelper.js";
 
 export const addProduct = async (req, res) => {
   try {
@@ -83,6 +84,8 @@ export const addProduct = async (req, res) => {
     });
 
     await product.save();
+
+    await clearProductCache(); // no slug → clears list cache
 
     res.status(201).json({
       success: true,
@@ -193,7 +196,16 @@ export const getSingleProduct = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    //get product
+    const PREFIX = "fornova";
+    const cacheKey = `${PREFIX}:product:${slug}`;
+
+    // Check cache first
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
+
+    //  Fetch by slug
     const product = await productModel
       .findOne({ slug, isActive: true })
       .populate("createdBy", "name")
@@ -220,17 +232,18 @@ export const getSingleProduct = async (req, res) => {
     //limit reviews
     const reviews = product.reviews ? product.reviews.slice(-5).reverse() : [];
 
-    res.json({
+    const response = {
       success: true,
-      product: {
-        ...product,
-        reviews,
-      },
+      product: { ...product, reviews },
       relatedProducts,
-    });
+    };
+
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
+
+    return res.json(response);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
+    console.error(error);
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -367,18 +380,7 @@ export const updateProduct = async (req, res) => {
 
     await product.save();
 
-    const stream = redisClient.scanIterator({
-      MATCH: "fornova:products:*",
-    });
-
-    const keys = [];
-    for await (const key of stream) {
-      keys.push(key);
-    }
-
-    if (keys.length) {
-      await redisClient.del(keys);
-    }
+    await clearProductCache(product.slug);
 
     res.json({
       success: true,
@@ -413,6 +415,8 @@ export const deleteProduct = async (req, res) => {
       product.isActive = false;
       await product.save();
 
+      await clearProductCache(product.slug); // ✅ ADD THIS
+
       return res.json({
         success: true,
         message: "Product soft deleted (hidden)",
@@ -435,6 +439,8 @@ export const deleteProduct = async (req, res) => {
     }
 
     await product.deleteOne();
+
+    await clearProductCache(product.slug);
 
     res.json({
       success: true,
@@ -464,6 +470,8 @@ export const restoreProduct = async (req, res) => {
 
     product.isActive = true;
     await product.save();
+
+    await clearProductCache(product.slug);
 
     res.json({
       success: true,
@@ -642,6 +650,8 @@ export const addReview = async (req, res) => {
 
     await product.save();
 
+    await clearProductCache(product.slug);
+
     res.status(200).json({
       success: true,
       message: "Review added successfully",
@@ -698,6 +708,8 @@ export const updateReview = async (req, res) => {
 
     await product.save();
 
+    await clearProductCache(product.slug);
+
     res.json({
       success: true,
       message: "Review update successfully",
@@ -751,6 +763,8 @@ export const deleteReview = async (req, res) => {
     calculateRating(product);
 
     await product.save();
+
+    await clearProductCache(product.slug);
 
     res.json({
       success: true,
