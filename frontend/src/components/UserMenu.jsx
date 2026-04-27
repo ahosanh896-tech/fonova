@@ -38,18 +38,18 @@ const UserMenu = () => {
       />
 
       {user && open && (
-        <div className="absolute right-0 mt-3 w-40 bg-white shadow-lg rounded-lg border z-50">
-          <div className="flex flex-col text-sm text-gray-700">
+        <div className="absolute right-0 mt-3 w-40 bg-white shadow-lg border border-gray-200 rounded-lg  z-50">
+          <div className="flex flex-col text-sm text-gray-700 ">
             <button
               onClick={() => navigate("/orders")}
-              className="px-4 py-2 text-left hover:bg-gray-100"
+              className="px-3 pl-4 py-2 text-left hover:bg-gray-100"
             >
               Orders
             </button>
 
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-left hover:bg-red-100 text-red-600"
+              className="px-3 pl-4 py-1 text-left hover:bg-red-100 text-red-600"
             >
               Logout
             </button>

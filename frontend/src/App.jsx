@@ -7,6 +7,8 @@ import { Routes, Route } from "react-router-dom";
 import Collection from "./pages/Collection";
 import Authpage from "./pages/AuthPage";
 import VerifyOtpPage from "./pages/VerifyOtpPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPasswordOtp from "./pages/ResetPasswordOtp";
 
 import { Product } from "./pages/Product";
 import { useShop } from "./hooks/useShop";
@@ -42,6 +44,8 @@ const App = () => {
           <Route path="/product/:slug" element={<Product />} />
           <Route path="/login" element={<Authpage />} />
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-otp" element={<ResetPasswordOtp />} />
         </Routes>
       </div>
 

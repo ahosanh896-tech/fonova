@@ -2,30 +2,44 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useShop } from "../hooks/useShop";
 import { useNavigate } from "react-router-dom";
-import { successToast } from "../Toast";
 
 const VerifyOtpPage = () => {
-  const { handleSubmit, setValue } = useForm();
+  const { register, handleSubmit, setValue, getValues } = useForm({
+    mode: "onChange",
+    defaultValues: { otp: "" },
+  });
   const { verifyOtp, resendOtp, loading } = useShop();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [email] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem("otpState") || "null");
+    return saved?.email || "";
+  });
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(60);
 
   const inputRefs = useRef([]);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("otpState") || "null");
+    register("otp", {
+      required: "OTP is required",
+      minLength: {
+        value: 6,
+        message: "OTP must be 6 digits",
+      },
+    });
+  }, [register]);
 
-    if (!saved?.email) {
+  useEffect(() => {
+    if (!email) {
       navigate("/login");
       return;
     }
 
-    setEmail(saved.email);
-    inputRefs.current[0]?.focus();
-  }, []);
+    setTimeout(() => {
+      inputRefs.current[0]?.focus();
+    }, 0);
+  }, [email, navigate]);
 
   // countdown
   useEffect(() => {
@@ -45,23 +59,57 @@ const VerifyOtpPage = () => {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    setValue("otp", newOtp.join(""));
+    const otpValue = newOtp.join("");
+    setValue("otp", otpValue, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
 
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newOtp.every((d) => d !== "")) {
+    if (otpValue.length === 6) {
+      handleSubmit(onSubmit)();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    const paste = e.clipboardData.getData("text").trim().slice(0, 6);
+
+    if (!/^[0-9]+$/.test(paste)) return;
+
+    const newOtp = paste.split("");
+    setOtp(newOtp);
+    setValue("otp", paste, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
+    newOtp.forEach((digit, i) => {
+      if (inputRefs.current[i]) {
+        inputRefs.current[i].value = digit;
+      }
+    });
+
+    inputRefs.current[5]?.focus();
+
+    if (paste.length === 6) {
       handleSubmit(onSubmit)();
     }
   };
 
   const onSubmit = async () => {
-    const res = await verifyOtp({ email, otp: otp.join("") });
+    const res = await verifyOtp({ email, otp: getValues("otp") });
 
     if (res?.success) {
       localStorage.removeItem("otpState");
-      successToast("Account verified. Please log in.");
       navigate("/login");
     }
   };
@@ -73,6 +121,12 @@ const VerifyOtpPage = () => {
 
     if (res?.success) {
       setTimer(60);
+      setOtp(["", "", "", "", "", ""]);
+      setValue("otp", "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      inputRefs.current[0]?.focus();
     }
   };
 
@@ -81,13 +135,14 @@ const VerifyOtpPage = () => {
       <div className="bg-white p-6 rounded-xl shadow w-full max-w-md space-y-6">
         <h2 className="text-xl text-center font-semibold">Verify OTP</h2>
 
-        <div className="flex justify-between gap-2">
+        <div className="flex justify-between gap-2" onPaste={handlePaste}>
           {otp.map((digit, i) => (
             <input
               key={i}
               ref={(el) => (inputRefs.current[i] = el)}
               value={digit}
               onChange={(e) => handleChange(e.target.value, i)}
+              onKeyDown={(e) => handleKeyDown(e, i)}
               maxLength={1}
               className="w-12 h-12 text-center border rounded-md"
             />
