@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Toaster } from "sonner";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -6,10 +6,18 @@ import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
 import Collection from "./pages/Collection";
 import Authpage from "./pages/AuthPage";
+import VerifyOtpPage from "./pages/VerifyOtpPage";
 
 import { Product } from "./pages/Product";
+import { useShop } from "./hooks/useShop";
 
 const App = () => {
+  const { checkAuth } = useShop();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   return (
     <div>
       <Toaster
@@ -33,6 +41,7 @@ const App = () => {
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:slug" element={<Product />} />
           <Route path="/login" element={<Authpage />} />
+          <Route path="/verify-otp" element={<VerifyOtpPage />} />
         </Routes>
       </div>
 

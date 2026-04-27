@@ -15,6 +15,7 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
 
+  //REGISTER
   const registerUser = useCallback(async (payload) => {
     try {
       setLoading(true);
@@ -22,18 +23,25 @@ export const useAuth = () => {
 
       if (data.success) {
         successToast(data.message);
-      } else {
-        errorToast(data.message);
       }
 
       return data;
     } catch (error) {
-      errorToast(error.response?.data?.message || error.message);
+      const errData = error.response?.data;
+
+      // IMPORTANT: return even on error
+      if (errData?.message?.includes("OTP already sent")) {
+        return errData;
+      }
+
+      errorToast(errData?.message || error.message);
+      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // LOGIN
   const login = useCallback(async (payload) => {
     try {
       setLoading(true);
@@ -45,18 +53,22 @@ export const useAuth = () => {
       } else {
         errorToast(data.message);
       }
+
       return data;
     } catch (error) {
-      errorToast(error.response?.data?.message || error.message);
+      const errData = error.response?.data;
+
+      errorToast(errData?.message || error.message);
+      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // LOGOUT
   const logout = useCallback(async () => {
     try {
       setLoading(true);
-
       const data = await logoutApi();
 
       if (data.success) {
@@ -65,17 +77,22 @@ export const useAuth = () => {
       } else {
         errorToast(data.message);
       }
+
+      return data;
     } catch (error) {
-      errorToast(error.response?.data?.message || error.message);
+      const errData = error.response?.data;
+
+      errorToast(errData?.message || error.message);
+      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // VERIFY OTP
   const verifyOtp = useCallback(async (payload) => {
     try {
       setLoading(true);
-
       const data = await verifyOtpApi(payload);
 
       if (data.success) {
@@ -83,37 +100,45 @@ export const useAuth = () => {
       } else {
         errorToast(data.message);
       }
+
       return data;
     } catch (error) {
-      errorToast(error.response?.data?.message || error.message);
+      const errData = error.response?.data;
+
+      errorToast(errData?.message || error.message);
+      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // RESEND OTP
   const resendOtp = useCallback(async (payload) => {
     try {
       setLoading(true);
-
       const data = await resendOtpApi(payload);
 
       if (data.success) {
-        successToast(data.message);
+        successToast("New OTP sent");
       } else {
         errorToast(data.message);
       }
+
       return data;
     } catch (error) {
-      errorToast(error.response?.data?.message || error.message);
+      const errData = error.response?.data;
+
+      errorToast(errData?.message || error.message);
+      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // SEND RESET OTP
   const sendResetOtp = useCallback(async (payload) => {
     try {
       setLoading(true);
-
       const data = await sendResetOtpApi(payload);
 
       if (data.success) {
@@ -121,14 +146,19 @@ export const useAuth = () => {
       } else {
         errorToast(data.message);
       }
+
       return data;
     } catch (error) {
-      errorToast(error.response?.data?.message || error.message);
+      const errData = error.response?.data;
+
+      errorToast(errData?.message || error.message);
+      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // RESET PASSWORD
   const resetPassword = useCallback(async (payload) => {
     try {
       setLoading(true);
@@ -139,25 +169,27 @@ export const useAuth = () => {
       } else {
         errorToast(data.message);
       }
+
       return data;
-    } catch (err) {
-      errorToast(err.response?.data?.message || err.message);
+    } catch (error) {
+      const errData = error.response?.data;
+
+      errorToast(errData?.message || error.message);
+      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // CHECK AUTH
   const checkAuth = useCallback(async () => {
     try {
       const data = await isAuthApi();
-
-      if (data.success) {
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
+      setUser(data.success ? data.user : null);
+      return data;
     } catch {
       setUser(null);
+      return null;
     }
   }, []);
 

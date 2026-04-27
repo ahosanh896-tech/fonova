@@ -208,7 +208,7 @@ export const verifyOtp = async (req, res) => {
     //if the otp or user not exist in mongoose
     if (!user || !user.verifyOtp) {
       return res.status(400).json({
-        return: false,
+        success: false,
         message: "Invalid request",
       });
     }

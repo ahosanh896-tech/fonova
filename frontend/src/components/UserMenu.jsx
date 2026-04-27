@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { UserIcon } from "../Icon";
-import { useAuth } from "../hooks/useAuth";
+import { useShop } from "../hooks/useShop";
 import { useNavigate } from "react-router-dom";
 
 const UserMenu = () => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useShop();
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);

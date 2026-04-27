@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useShop } from "../hooks/useShop";
 import { FloatingInput } from "../components/FlotingInput";
 import { Mail, Lock, UserIcon } from "../Icon";
 import { useForm, useWatch } from "react-hook-form";
+import { successToast } from "../Toast";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const { login, registerUser, loading } = useAuth();
+  const { login, registerUser, loading } = useShop();
   const navigate = useNavigate();
 
   const {
@@ -27,10 +28,7 @@ export default function AuthPage() {
 
   const onSubmit = async (data) => {
     if (isLogin) {
-      const res = await login({
-        email: data.email,
-        password: data.password,
-      });
+      const res = await login(data);
 
       if (res?.success) {
         navigate("/");
@@ -41,8 +39,14 @@ export default function AuthPage() {
     } else {
       const res = await registerUser(data);
 
-      if (res?.success) {
+      console.log("REGISTER RESPONSE:", res);
+
+      // safer check
+      if (res?.success || res?.message?.includes("OTP already sent")) {
+        successToast("Redirecting to OTP...");
+
         localStorage.setItem("otpState", JSON.stringify({ email: data.email }));
+
         navigate("/verify-otp");
       }
     }
@@ -52,8 +56,8 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-10">
       <div className="w-full max-w-md space-y-4">
         {/* Title */}
-        <div className="flex items-center justify-center gap-2 mb-8 mt-10">
-          <h2 className="prata-regular text-3xl">
+        <div className="flex items-center justify-center gap-2 mb-8 mt-10 text-shadow-lg">
+          <h2 className="prata-regular text-3xl text-center">
             {isLogin ? "Login" : "Create Account"}
           </h2>
           <hr className="h-[1.5px] w-6 bg-gray-800 border-none" />
@@ -67,9 +71,7 @@ export default function AuthPage() {
                 icon={UserIcon}
                 placeholder="Name"
                 value={nameValue}
-                {...formRegister("name", {
-                  required: "Name is required",
-                })}
+                {...formRegister("name", { required: "Name required" })}
               />
               {errors.name && (
                 <p className="text-red-500 text-sm">{errors.name.message}</p>
@@ -117,7 +119,7 @@ export default function AuthPage() {
 
           {isLogin && (
             <p
-              className="text-sm text-right cursor-pointer underline"
+              className="text-sm text-right cursor-pointer underline text-shadow-lg"
               onClick={() => navigate("/forgot-password")}
             >
               Forgot password?
@@ -126,18 +128,18 @@ export default function AuthPage() {
 
           <button
             disabled={loading || !isValid}
-            className="w-full bg-black text-white py-2  "
+            className="w-full bg-black text-white py-2 shadow-lg "
           >
             {loading ? "Please wait..." : isLogin ? "Login" : "Register"}
           </button>
         </form>
 
         {/* Toggle */}
-        <p className="text-center text-sm">
+        <p className="text-center text-sm text-shadow-lg">
           {isLogin ? "Don't have an account?" : "Already have an account?"}
           <button
-            className="ml-1 underline"
             onClick={() => setIsLogin(!isLogin)}
+            className="underline ml-1"
           >
             {isLogin ? "Register" : "Login"}
           </button>

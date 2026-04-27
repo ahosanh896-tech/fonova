@@ -14,7 +14,7 @@ export const FloatingInput = forwardRef(
         {/* Icon */}
         {Icon && (
           <Icon
-            className={`w-4 h-4 transition-all duration-200 text-gray-800
+            className={`w-4 h-4 transition-all duration-200 text-gray-800 text-hs
               ${hasValue ? "opacity-0 scale-75 w-0" : "opacity-100 mr-2"}
             `}
           />
