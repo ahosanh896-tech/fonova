@@ -1,4 +1,5 @@
 import productModel from "../models/productModel.js";
+import orderModel from "../models/orderModel.js";
 import { cloudinary } from "../config/cloudinary.js";
 import calculateRating from "../utils/calculateRating.js";
 import redisClient from "../config/redis.js";
@@ -610,13 +611,6 @@ export const addReview = async (req, res) => {
     const { id } = req.params;
     const { rating, comment } = req.body;
 
-    if (!rating) {
-      return res.status(400).json({
-        success: false,
-        message: "Rating is required",
-      });
-    }
-
     const product = await productModel.findById(id);
 
     if (!product || !product.isActive) {
@@ -626,36 +620,62 @@ export const addReview = async (req, res) => {
       });
     }
 
+    const userId = req.user._id;
+
+    // rating validation
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be between 1 and 5",
+      });
+    }
+
+    // purchase check
+    const hasPurchased = await orderModel.findOne({
+      user: userId,
+      "orderItems.product": id,
+      isPaid: true,
+    });
+
+    if (!hasPurchased) {
+      return res.status(403).json({
+        success: false,
+        message: "Purchase required to review.",
+      });
+    }
+
+    // duplicate check
     const existingReview = product.reviews.find(
-      (r) => r.user.toString() === req.user._id.toString(),
+      (r) => r.user.toString() === userId.toString(),
     );
 
     if (existingReview) {
       return res.status(400).json({
         success: false,
-        message: "You already reviewed this porduct.Please update your review.",
+        message:
+          "You already reviewed this product. Please update your review.",
       });
     }
 
-    //add new review
-    const newReview = {
-      user: req.user._id,
+    // add review
+    product.reviews.push({
+      user: userId,
       name: req.user.name,
       rating: Number(rating),
-      comment,
-    };
-    product.reviews.push(newReview);
+      comment: comment?.trim(),
+    });
 
+    // update rating
     calculateRating(product);
 
     await product.save();
 
+    // clear cache
     await clearProductCache(product.slug);
 
     res.status(200).json({
       success: true,
       message: "Review added successfully",
-
       rating: product.rating,
       numReviews: product.numReviews,
     });
