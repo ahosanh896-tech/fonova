@@ -630,19 +630,19 @@ export const addReview = async (req, res) => {
       });
     }
 
-    // purchase check
-    const hasPurchased = await orderModel.findOne({
-      user: userId,
-      "orderItems.product": id,
-      isPaid: true,
-    });
+    // // purchase check
+    // const hasPurchased = await orderModel.findOne({
+    //   user: userId,
+    //   "orderItems.product": id,
+    //   isPaid: true,
+    // });
 
-    if (!hasPurchased) {
-      return res.status(403).json({
-        success: false,
-        message: "Purchase required to review.",
-      });
-    }
+    // if (!hasPurchased) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "Purchase required to review.",
+    //   });
+    // }
 
     // duplicate check
     const existingReview = product.reviews.find(

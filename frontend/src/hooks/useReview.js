@@ -55,7 +55,7 @@ export const useReview = (product, user, refresh) => {
         setRating(0);
         setComment("");
 
-        refresh(); // 🔥 refetch product
+        refresh(); //  refetch product
       } else {
         errorToast(res.message);
       }

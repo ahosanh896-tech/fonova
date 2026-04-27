@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { useParams } from "react-router-dom";
 import { useGetSingleProduct } from "../hooks/useGetSingleProduct";
 import { useContext, useEffect } from "react";
@@ -5,16 +7,32 @@ import { ShopContext } from "../context/ShopContext";
 import { ProductItem } from "../components/ProductItem";
 import Title from "../components/Title";
 
+import { useReview } from "../hooks/useReview";
+import AmazonReviewUI from "../components/ReviewUi";
+
 export const Product = () => {
+  const [activeTab, setActiveTab] = useState("description");
   const { slug } = useParams();
-  const { currency } = useContext(ShopContext);
+  const { currency, user } = useContext(ShopContext);
 
   const { product, relatedProducts, loading, fetchSingleProduct } =
     useGetSingleProduct();
 
   useEffect(() => {
     fetchSingleProduct(slug);
-  }, [slug]);
+  }, [slug, fetchSingleProduct]);
+
+  const {
+    rating,
+    setRating,
+    comment,
+    setComment,
+    loading: reviewLoading,
+    submitReview,
+    removeReview,
+    existingReview,
+    ratingStats,
+  } = useReview(product, user, () => fetchSingleProduct(slug));
 
   if (loading) return <p>Loading...</p>;
   if (!product) return <p>Not found</p>;
@@ -154,15 +172,51 @@ export const Product = () => {
       {/*TABS*/}
       <div className="mt-16">
         <div className="flex gap-6 border-b">
-          <button className="pb-2 border-b-2 border-black">Description</button>
-          <button className="pb-2 text-gray-400">Additional Information</button>
-          <button className="pb-2 text-gray-400">
+          <button
+            onClick={() => setActiveTab("description")}
+            className={`pb-2 ${
+              activeTab === "description"
+                ? "border-b-2 border-black"
+                : "text-gray-400"
+            }`}
+          >
+            Description
+          </button>
+
+          <button
+            onClick={() => setActiveTab("reviews")}
+            className={`pb-2 ${
+              activeTab === "reviews"
+                ? "border-b-2 border-black"
+                : "text-gray-400"
+            }`}
+          >
             Reviews ({product.numReviews})
           </button>
         </div>
 
         <div className="mt-6 text-gray-600 max-w-3xl text-sm leading-6">
-          {product.description}
+          {activeTab === "description" && (
+            <div className="text-gray-600 max-w-3xl text-sm leading-6">
+              {product.description}
+            </div>
+          )}
+
+          {activeTab === "reviews" && (
+            <AmazonReviewUI
+              product={product}
+              rating={rating}
+              setRating={setRating}
+              comment={comment}
+              setComment={setComment}
+              loading={reviewLoading}
+              submitReview={submitReview}
+              removeReview={removeReview}
+              existingReview={existingReview}
+              user={user}
+              ratingStats={ratingStats}
+            />
+          )}
         </div>
       </div>
 
