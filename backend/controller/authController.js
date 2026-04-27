@@ -7,7 +7,7 @@ import { generateOtp } from "../utils/generateOtp.js";
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "none",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 };
 
 export const register = async (req, res) => {
