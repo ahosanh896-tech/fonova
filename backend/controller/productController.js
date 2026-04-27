@@ -197,15 +197,6 @@ export const getSingleProduct = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const PREFIX = "fornova";
-    const cacheKey = `${PREFIX}:product:${slug}`;
-
-    // Check cache first
-    const cachedData = await redisClient.get(cacheKey);
-    if (cachedData) {
-      return res.json(JSON.parse(cachedData));
-    }
-
     //  Fetch by slug
     const product = await productModel
       .findOne({ slug, isActive: true })
@@ -238,8 +229,6 @@ export const getSingleProduct = async (req, res) => {
       product: { ...product, reviews },
       relatedProducts,
     };
-
-    await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
 
     return res.json(response);
   } catch (error) {
