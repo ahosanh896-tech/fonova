@@ -12,6 +12,7 @@ import AmazonReviewUI from "../components/ReviewUi";
 
 export const Product = () => {
   const [activeTab, setActiveTab] = useState("description");
+  const [qty, setQty] = useState(1);
   const { slug } = useParams();
   const { currency, user } = useContext(ShopContext);
 
@@ -144,9 +145,22 @@ export const Product = () => {
           {/* Quantity + Buttons */}
           <div className="flex  gap-4 mt-6 text-sm ">
             <div className="flex items-center w-20 md:w-25 justify-between bg-gray-100 shadow py-2 rounded hover:bg-gray-200 active:bg-gray-300 transition-all  ">
-              <button className="pl-2">-</button>
-              <span className="px-1">1</span>
-              <button className="pr-2">+</button>
+              <button
+                className="pl-2"
+                onClick={() => setQty((prev) => Math.max(1, prev - 1))}
+              >
+                -
+              </button>
+              <span className="px-1">{qty}</span>
+              <button
+                disabled={qty >= product.stock}
+                onClick={() =>
+                  setQty((prev) => Math.min(product.stock, prev + 1))
+                }
+                className="pr-2 disabled:opacity-50"
+              >
+                +
+              </button>
             </div>
 
             <button className="flex items-center w-25 md:w-30 justify-around bg-gray-100 shadow  py-2 hover:bg-gray-200 rounded transition-all active:bg-gray-300">
