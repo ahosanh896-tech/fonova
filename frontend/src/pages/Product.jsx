@@ -19,6 +19,8 @@ export const Product = () => {
   const { product, relatedProducts, loading, fetchSingleProduct } =
     useGetSingleProduct();
 
+  const { addToCart } = useContext(ShopContext);
+
   useEffect(() => {
     fetchSingleProduct(slug);
   }, [slug, fetchSingleProduct]);
@@ -163,7 +165,10 @@ export const Product = () => {
               </button>
             </div>
 
-            <button className="flex items-center w-25 md:w-30 justify-around bg-gray-100 shadow  py-2 hover:bg-gray-200 rounded transition-all active:bg-gray-300">
+            <button
+              onClick={() => addToCart(product, qty)}
+              className="flex items-center w-25 md:w-30 justify-around bg-gray-100 shadow  py-2 hover:bg-gray-200 rounded transition-all active:bg-gray-300"
+            >
               Add To Cart
             </button>
 

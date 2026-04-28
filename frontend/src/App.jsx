@@ -14,6 +14,7 @@ import { Product } from "./pages/Product";
 import { useShop } from "./hooks/useShop";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Cart from "./pages/Cart";
 
 const App = () => {
   const { checkAuth } = useShop();
@@ -50,6 +51,7 @@ const App = () => {
           <Route path="/reset-otp" element={<ResetPasswordOtp />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </div>
 

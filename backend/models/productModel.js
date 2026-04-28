@@ -126,8 +126,9 @@ productSchema.plugin(stockMiddleware);
 
 // Final price (after discount)
 productSchema.virtual("finalPrice").get(function () {
-  const price = Math.max(0, this.price - (this.price * this.discount) / 100);
-  return Math.round(price);
+  const price = this.price - (this.price * (this.discount || 0)) / 100;
+
+  return Math.round(price * 100) / 100;
 });
 
 // Indexes

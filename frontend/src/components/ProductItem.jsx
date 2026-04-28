@@ -10,7 +10,7 @@ export const ProductItem = ({
   discount,
   finalPrice,
   category,
-  showDiscount = true, // 👈 new prop (default true)
+  showDiscount = true, // new prop (default true)
 }) => {
   const { currency } = useContext(ShopContext);
 
