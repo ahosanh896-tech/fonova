@@ -28,6 +28,18 @@ export const addToCart = async (req, res) => {
       (item) => item.productId.toString() === productId && item.size === size,
     );
 
+    const newQuantity = existingItem
+      ? existingItem.quantity + quantity
+      : quantity;
+
+    //Stock check
+    if (newQuantity > product.stock) {
+      return res.status(400).json({
+        success: false,
+        message: `Only ${product.stock} items available in stock.`,
+      });
+    }
+
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
@@ -57,6 +69,7 @@ export const updateCart = async (req, res) => {
   try {
     const { productId, quantity, size = "" } = req.body;
 
+    // VALIDATION
     if (!productId || quantity === undefined) {
       return res.status(400).json({
         success: false,
@@ -64,10 +77,21 @@ export const updateCart = async (req, res) => {
       });
     }
 
+    // FIND PRODUCT
+    const product = await productModel.findById(productId);
+
+    if (!product || !product.isActive) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // FIND USER
     const user = await userModel.findById(req.user._id);
 
     const item = user.cartData.find(
-      (i) => i.productId.toString() === productId && i.size === size,
+      (i) => i.productId.toString() === productId && (i.size || "") === size,
     );
 
     if (!item) {
@@ -77,15 +101,32 @@ export const updateCart = async (req, res) => {
       });
     }
 
+    // REMOVE ITEM IF QUANTITY <= 0
     if (quantity <= 0) {
-      //  remove item
       user.cartData = user.cartData.filter(
-        (i) => !(i.productId.toString() === productId && i.size === size),
+        (i) =>
+          !(i.productId.toString() === productId && (i.size || "") === size),
       );
-    } else {
-      //  update quantity
-      item.quantity = quantity;
+
+      await user.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Item removed from cart",
+        cart: user.cartData,
+      });
     }
+
+    //  STOCK VALIDATION
+    if (quantity > product.stock) {
+      return res.status(400).json({
+        success: false,
+        message: `Only ${product.stock} items available in stock`,
+      });
+    }
+
+    // UPDATE QUANTITY
+    item.quantity = quantity;
 
     await user.save();
 
@@ -95,6 +136,8 @@ export const updateCart = async (req, res) => {
       cart: user.cartData,
     });
   } catch (error) {
+    console.error("UPDATE CART ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
