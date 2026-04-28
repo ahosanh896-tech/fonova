@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { Cart, Menu, RightArrow, Search, UserIcon } from "../Icon";
 import UserMenu from "./UserMenu";
+import { ShopContext } from "../context/ShopContext";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [hasShadow, setHasShadow] = useState(false);
 
-  // for dropdown
+  const { cartCount } = useContext(ShopContext);
 
   // scroll to top
   const scrollToTop = () => {
@@ -100,9 +101,11 @@ const Navbar = () => {
 
             <Link to="/cart" className="relative">
               <Cart />
-              <p className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white ml-1">
-                56
-              </p>
+              {cartCount > 0 && (
+                <p className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white ml-1">
+                  {cartCount}
+                </p>
+              )}
             </Link>
 
             <Menu

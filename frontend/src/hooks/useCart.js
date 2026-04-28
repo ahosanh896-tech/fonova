@@ -172,6 +172,10 @@ export const useCart = () => {
     );
   }, [cart]);
 
+  const cartCount = useMemo(() => {
+    return cart.reduce((acc, item) => acc + item.quantity, 0);
+  }, [cart]);
+
   // INITIAL FETCH
   useEffect(() => {
     fetchCart();
@@ -186,5 +190,6 @@ export const useCart = () => {
     updateCart,
     removeFromCart,
     clearCart,
+    cartCount,
   };
 };

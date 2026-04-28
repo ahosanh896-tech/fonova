@@ -37,7 +37,7 @@ const Cart = () => {
   const finalTotal = subtotal + tax + shipping;
 
   return (
-    <div>
+    <div className="border border-t border-gray-300">
       <Container className="max-w-7xl mx-auto">
         {/* TITLE */}
         <div className="text-3xl p-4">
@@ -82,13 +82,13 @@ const Cart = () => {
                         </p>
 
                         {/* PRICE */}
-                        <div className="flex mt-1 gap-3 items-center">
-                          <span className="text-lg font-bold text-black">
+                        <div className="flex mt-1  items-center">
+                          <span className="w-20 text-lg font-bold text-black">
                             {currency} {finalPrice.toFixed(2)}
                           </span>
 
                           {product.discount > 0 && (
-                            <span className="line-through text-xs text-gray-400">
+                            <span className="w-20 line-through text-xs text-gray-400">
                               {currency} {product.price.toFixed(2)}
                             </span>
                           )}
@@ -124,14 +124,14 @@ const Cart = () => {
                     </div>
 
                     {/* RIGHT CONTENT */}
-                    <div className="flex flex-row sm:flex-col items-end justify-between mt-4 sm:mt-0 sm:ml-auto">
-                      <div className="font-semibold">
+                    <div className="flex flex-row sm:flex-col items-end justify-between mt-4 sm:mt-0 sm:ml-auto px-3">
+                      <div className="font-semibold w-20">
                         {currency} {(finalPrice * item.quantity).toFixed(2)}
                       </div>
 
                       <button
                         onClick={() => removeFromCart(product._id)}
-                        className="text-sm text-gray-500 hover:underline mt-2 sm:mt-4"
+                        className="w-20 text-sm text-gray-500 hover:underline mr-3 mt-2 sm:mt-4"
                       >
                         ✕ Remove
                       </button>
