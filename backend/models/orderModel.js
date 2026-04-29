@@ -1,3 +1,4 @@
+// models/orderModel.js
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
@@ -41,7 +42,13 @@ const orderSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["COD", "Stripe", "Paypal"],
+      enum: ["COD", "Stripe"],
+      default: "COD",
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
       default: "pending",
     },
 
@@ -53,7 +60,7 @@ const orderSchema = new mongoose.Schema(
 
     shippingPrice: {
       type: Number,
-      defaut: 0,
+      default: 0,
     },
 
     totalPrice: {
@@ -73,16 +80,13 @@ const orderSchema = new mongoose.Schema(
       default: false,
     },
 
-    PaymentResult: {
+    paymentResult: {
       id: String,
       status: String,
-      update_time: String,
-      email_address: String,
+      email: String,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 const orderModel =
