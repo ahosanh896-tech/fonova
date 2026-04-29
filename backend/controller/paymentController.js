@@ -1,5 +1,6 @@
 import { stripe } from "../config/stripe.js";
 import productModel from "../models/productModel.js";
+import { createOrderService } from "../services/orderService.js";
 
 export const createStripeSession = async (req, res) => {
   try {
@@ -49,4 +50,55 @@ export const createStripeSession = async (req, res) => {
       message: err.message,
     });
   }
+};
+
+export const stripeWebhook = async (req, res) => {
+  let event;
+
+  try {
+    const sig = req.headers["stripe-signature"];
+
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+
+    const userId = session.metadata.userId;
+    const items = JSON.parse(session.metadata.items);
+    const address = JSON.parse(session.metadata.address);
+
+    // Prevent duplicate orders
+    const existingOrder = await orderModel.findOne({
+      "paymentResult.id": session.id,
+    });
+
+    if (existingOrder) {
+      return res.json({ received: true });
+    }
+
+    await createOrderService({
+      userId,
+      orderItems: items.map((i) => ({
+        product: i._id,
+        quantity: i.quantity,
+      })),
+      shippingAddress: address,
+      paymentMethod: "Stripe",
+      paymentStatus: "paid",
+      paymentResult: {
+        id: session.id,
+        status: session.payment_status,
+        email: session.customer_details?.email,
+      },
+    });
+  }
+
+  res.json({ received: true });
 };
