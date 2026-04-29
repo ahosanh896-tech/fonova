@@ -13,7 +13,7 @@ export const useOrder = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/orders/place", payload);
+      const res = await api.post("api/order/place", payload);
 
       if (res.data.success) {
         successToast(res.data.message);
@@ -36,7 +36,7 @@ export const useOrder = () => {
     try {
       setLoading(true);
 
-      const res = await api.get("/orders/my-orders");
+      const res = await api.get("api/order/my-orders");
 
       if (res.data.success) {
         setOrders(res.data.orders);
@@ -59,7 +59,7 @@ export const useOrder = () => {
     try {
       setLoading(true);
 
-      const res = await api.get(`/orders/${id}`);
+      const res = await api.get(`api/order/${id}`);
 
       if (res.data.success) {
         setSingleOrder(res.data.order);
@@ -82,7 +82,7 @@ export const useOrder = () => {
     try {
       setLoading(true);
 
-      const res = await api.put(`/orders/cancel/${id}`);
+      const res = await api.put(`api/order/cancel/${id}`);
 
       if (res.data.success) {
         successToast(res.data.message);

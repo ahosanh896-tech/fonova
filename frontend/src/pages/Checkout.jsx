@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import Container from "../components/Container";
 import { assets } from "../assets/assets";
 import { usePayment } from "../hooks/usePayment";
+import { useOrder } from "../hooks/useOrder";
+
+import { useContext } from "react";
+import { ShopContext } from "../context/ShopContext";
+import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
   const {
@@ -13,8 +18,52 @@ const Checkout = () => {
     formState: { errors, isValid },
   } = useForm({ mode: "onChange" });
 
-  const onSubmit = (data) => {
-    console.log("Checkout Data:", data);
+  const { createStripePayment } = usePayment();
+  const { placeOrder } = useOrder();
+  const { cart, clearCart, fetchCart } = useContext(ShopContext);
+
+  // payment method state
+  const [method, setMethod] = useState("Stripe");
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (data) => {
+    const payload = {
+      orderItems: cart.map((item) => ({
+        product: item.productId._id,
+        quantity: item.quantity,
+      })),
+      shippingAddress: {
+        fullName: `${data.firstName} ${data.lastName}`,
+        address: data.street,
+        city: data.city,
+        postalCode: data.zipcode,
+        country: data.country,
+        phone: data.phone,
+      },
+    };
+
+    // Stripe
+    if (method === "Stripe") {
+      await createStripePayment({
+        items: cart,
+        address: payload.shippingAddress,
+      });
+    }
+
+    // COD
+    if (method === "COD") {
+      const res = await placeOrder({
+        ...payload,
+        paymentMethod: "COD",
+      });
+
+      if (res?.success) {
+        await clearCart();
+        await fetchCart();
+        navigate("/orders");
+      }
+    }
   };
 
   return (
@@ -31,23 +80,21 @@ const Checkout = () => {
           <div className="bg-white p-6 rounded shadow-sm space-y-4">
             <h2 className="font-semibold text-lg">Shipping Information</h2>
 
-            {/* NAME */}
             <div className="flex gap-3">
               <input
                 {...register("firstName", {
                   required: "First name is required",
                 })}
                 placeholder="First Name"
-                className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+                className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
               />
               <input
                 {...register("lastName", { required: "Last name is required" })}
                 placeholder="Last Name"
-                className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+                className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
               />
             </div>
 
-            {/* EMAIL */}
             <input
               {...register("email", {
                 required: "Email is required",
@@ -57,26 +104,24 @@ const Checkout = () => {
                 },
               })}
               placeholder="Email Address"
-              className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+              className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
             />
-
-            {/* ADDRESS */}
             <input
-              {...register("street", { required: "Street is required" })}
+              {...register("street", { required: true })}
               placeholder="Street Address"
-              className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+              className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
             />
 
             <div className="flex gap-3">
               <input
-                {...register("city", { required: "City is required" })}
+                {...register("city", { required: true })}
                 placeholder="City"
-                className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+                className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
               />
               <input
-                {...register("state", { required: "State is required" })}
+                {...register("state", { required: true })}
                 placeholder="State"
-                className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+                className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
               />
             </div>
 
@@ -84,26 +129,24 @@ const Checkout = () => {
               <input
                 {...register("zipcode", { required: "Zip code required" })}
                 placeholder="Zip Code"
-                className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+                className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
               />
               <input
                 {...register("country", { required: "Country required" })}
                 placeholder="Country"
-                className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+                className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
               />
             </div>
 
-            {/* PHONE */}
             <input
               {...register("phone", {
                 required: "Phone number required",
                 minLength: { value: 8, message: "Too short" },
               })}
               placeholder="Phone Number"
-              className="border border-gray-300 rounded  py-1.5 px-3.5 w-full"
+              className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
             />
 
-            {/* ERROR DISPLAY */}
             {Object.values(errors).length > 0 && (
               <div className="text-red-500 text-sm space-y-1">
                 {Object.values(errors).map((err, i) => (
@@ -119,23 +162,36 @@ const Checkout = () => {
             <CartTotal />
           </div>
 
-          {/* RIGHT: SUMMARY */}
+          {/* RIGHT: PAYMENT */}
           <div className="mt-12 shadow-sm p-4 ">
             <Title text1={"PAYMENT"} text2={"METHOD"} />
             {/* ----------- Payment Method Selection ---------- */}
+            {/* Payment Method Selection */}
             <div className="flex gap-3 flex-col lg:flex-row ">
-              <div className="flex items-center  gap-3 border p-2 px-3 cursor-pointer lg:w-50">
+              {/* STRIPE */}
+              <div
+                onClick={() => setMethod("Stripe")}
+                className="flex items-center gap-3 border p-2 px-3 cursor-pointer lg:w-50"
+              >
                 <p
-                  className={"min-w-3.5 h-3.5 border rounded-full bg-green-400"}
+                  className={`min-w-3.5 h-3.5 border rounded-full ${
+                    method === "Stripe" ? "bg-green-400" : ""
+                  }`}
                 ></p>
                 <img className="h-5 mx-4" src={assets.stripe_logo} />
               </div>
 
-              <div className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
+              {/* COD */}
+              <div
+                onClick={() => setMethod("COD")}
+                className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
+              >
                 <p
-                  className={"min-w-3.5 h-3.5 border rounded-full bg-green-400"}
+                  className={`min-w-3.5 h-3.5 border rounded-full ${
+                    method === "COD" ? "bg-green-400" : ""
+                  }`}
                 ></p>
-                <p className="text-gray-500  text-sm font-medium mx-4">
+                <p className="text-gray-500 text-sm font-medium mx-4">
                   CASH ON DELIVERY
                 </p>
               </div>
@@ -146,11 +202,11 @@ const Checkout = () => {
                 type="submit"
                 disabled={!isValid}
                 className={`w-full mt-6 py-3 rounded font-medium transition 
-            ${
-              isValid
-                ? "bg-lime-400 hover:bg-lime-500 text-black"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-            }`}
+                ${
+                  isValid
+                    ? "bg-lime-400 hover:bg-lime-500 text-black"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
               >
                 Continue to Payment
               </button>

@@ -9,7 +9,7 @@ export const usePayment = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/stripe/create-session", {
+      const res = await api.post("api/payment/stripe/create-session", {
         items,
         address,
       });

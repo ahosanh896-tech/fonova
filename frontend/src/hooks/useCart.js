@@ -81,21 +81,47 @@ export const useCart = () => {
     [cart],
   );
 
-  // UPDATE CART (No success toast → avoid spam)
+  // DEFINE FIRST
+  const removeFromCart = useCallback(async (productId) => {
+    let prevCart;
+
+    setCart((prev) => {
+      prevCart = prev;
+      return prev.filter((item) => item.productId._id !== productId);
+    });
+
+    try {
+      const data = await removeFromCartApi(productId);
+
+      if (!data.success) {
+        setCart(prevCart);
+        errorToast(data.message);
+      } else {
+        successToast("Item removed from cart");
+      }
+
+      return data;
+    } catch (error) {
+      setCart(prevCart);
+      return handleError(error);
+    }
+  }, []);
+
+  //  USE AFTER
   const updateCart = useCallback(
     async (productId, quantity) => {
-      const prevCart = [...cart];
-
       if (quantity <= 0) {
         return removeFromCart(productId);
       }
 
-      // optimistic update
-      setCart((prev) =>
-        prev.map((item) =>
+      let prevCart;
+
+      setCart((prev) => {
+        prevCart = prev;
+        return prev.map((item) =>
           item.productId._id === productId ? { ...item, quantity } : item,
-        ),
-      );
+        );
+      });
 
       try {
         const data = await updateCartApi({ productId, quantity });
@@ -111,35 +137,7 @@ export const useCart = () => {
         return handleError(error);
       }
     },
-    [cart],
-  );
-
-  // REMOVE FROM CART
-  const removeFromCart = useCallback(
-    async (productId) => {
-      const prevCart = [...cart];
-
-      setCart((prev) =>
-        prev.filter((item) => item.productId._id !== productId),
-      );
-
-      try {
-        const data = await removeFromCartApi(productId);
-
-        if (data.success) {
-          successToast("Item removed from cart");
-        } else {
-          setCart(prevCart);
-          errorToast(data.message);
-        }
-
-        return data;
-      } catch (error) {
-        setCart(prevCart);
-        return handleError(error);
-      }
-    },
-    [cart],
+    [removeFromCart],
   );
 
   // CLEAR CART
