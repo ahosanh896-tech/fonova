@@ -11,6 +11,7 @@ import productRouter from "./routes/productRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import startCronJobs from "./config/cron.js";
+import paymentRouter from "./routes/paymentRoutes.js";
 
 // App config
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/payment", paymentRouter);
 
 // start server with DB
 const startServer = async () => {
