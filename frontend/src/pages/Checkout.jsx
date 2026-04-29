@@ -4,6 +4,7 @@ import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import Container from "../components/Container";
 import { assets } from "../assets/assets";
+import { usePayment } from "../hooks/usePayment";
 
 const Checkout = () => {
   const {

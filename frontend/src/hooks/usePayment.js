@@ -1,6 +1,5 @@
-// hooks/usePayment.js
 import { useState, useCallback } from "react";
-import { api } from "../api";
+import { api } from "../api/api";
 import { errorToast } from "../Toast";
 
 export const usePayment = () => {
