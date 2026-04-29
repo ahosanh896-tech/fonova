@@ -167,6 +167,9 @@ export const updatePaymentStatus = async (req, res) => {
 };
 
 // CANCEL ORDER (USER)
+
+import productModel from "../models/productModel.js";
+
 export const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -188,6 +191,7 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
+    // prevent cancelling delivered orders
     if (order.orderStatus === "delivered") {
       return res.status(400).json({
         success: false,
@@ -195,12 +199,27 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
+    //  restore stock ONLY if not already cancelled
+    if (order.orderStatus !== "cancelled") {
+      for (const item of order.orderItems) {
+        await productModel.updateOne(
+          { _id: item.product },
+          {
+            $inc: {
+              stock: item.quantity,
+              sold: -item.quantity,
+            },
+          },
+        );
+      }
+    }
+
     order.orderStatus = "cancelled";
     await order.save();
 
     res.json({
       success: true,
-      message: "Order cancelled successfully",
+      message: "Order cancelled and stock restored",
     });
   } catch (error) {
     res.status(500).json({

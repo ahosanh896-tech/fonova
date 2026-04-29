@@ -1,3 +1,4 @@
+// hooks/usePayment.js
 import { useState, useCallback } from "react";
 import { api } from "../api/api";
 import { errorToast } from "../Toast";
@@ -5,34 +6,28 @@ import { errorToast } from "../Toast";
 export const usePayment = () => {
   const [loading, setLoading] = useState(false);
 
-  const createStripePayment = useCallback(async ({ items, address }) => {
+  const createStripePayment = useCallback(async (payload) => {
     try {
       setLoading(true);
 
-      const res = await api.post("api/payment/stripe/create-session", {
-        items,
-        address,
-      });
+      const res = await api.post("/api/stripe/create-session", payload);
 
       if (res.data.success) {
-        // redirect to Stripe
+        // THIS IS THE REDIRECT
         window.location.href = res.data.url;
       } else {
         errorToast(res.data.message);
       }
-
-      return res.data;
     } catch (error) {
       const errData = error.response?.data;
       errorToast(errData?.message || error.message);
-      return errData;
     } finally {
       setLoading(false);
     }
   }, []);
 
   return {
-    loading,
     createStripePayment,
+    loading,
   };
 };
