@@ -164,11 +164,20 @@ export const useCart = () => {
     }
   }, [cart]);
 
-  // TOTAL (optimized)
+  //total amount
+  const round = (num) => Math.round(num * 100) / 100;
+
   const total = useMemo(() => {
-    return cart.reduce(
-      (acc, item) => acc + item.productId.price * item.quantity,
-      0,
+    return round(
+      cart.reduce((acc, item) => {
+        const product = item.productId;
+
+        const price =
+          product.finalPrice ??
+          product.price - (product.price * (product.discount || 0)) / 100;
+
+        return acc + round(price * item.quantity);
+      }, 0),
     );
   }, [cart]);
 

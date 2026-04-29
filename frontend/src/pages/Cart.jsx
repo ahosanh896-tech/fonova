@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import Container from "../components/Container";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const {
@@ -11,12 +12,17 @@ const Cart = () => {
     clearCart,
     loading,
     currency,
+    user,
+    cartCount,
   } = useContext(ShopContext);
+
+  const navigate = useNavigate();
 
   if (loading) {
     return <p className="text-center mt-10">Loading cart...</p>;
   }
 
+  // PRICE LOGIC
   const getFinalPrice = (product) => {
     if (!product) return 0;
 
@@ -37,7 +43,7 @@ const Cart = () => {
   const finalTotal = subtotal + tax + shipping;
 
   return (
-    <div className="border border-t border-gray-300">
+    <div className=" border-t border-gray-300 mb-15">
       <Container className="max-w-7xl mx-auto">
         {/* TITLE */}
         <div className="text-3xl p-4">
@@ -46,7 +52,7 @@ const Cart = () => {
 
         {/* MAIN LAYOUT */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-20 bg-gray-100 rounded">
-          {/* LEFT SIDE - CART ITEMS */}
+          {/* LEFT SIDE */}
           <div className="md:col-span-2 lg:col-span-3 p-6 max-w-4xl">
             <h2 className="text-lg font-semibold pb-3">Item Details</h2>
 
@@ -64,16 +70,14 @@ const Cart = () => {
                     key={item._id || index}
                     className="flex flex-col sm:flex-row justify-between py-6 border-b border-gray-200 bg-white px-4 rounded mb-4"
                   >
-                    {/* LEFT CONTENT */}
+                    {/* LEFT */}
                     <div className="flex gap-6 w-full">
-                      {/* IMAGE */}
                       <img
                         src={product.images?.[0]?.url || "/placeholder.png"}
                         alt={product.name}
                         className="w-24 h-24 object-contain"
                       />
 
-                      {/* INFO */}
                       <div className="flex-1">
                         <h3 className="font-medium">{product.name}</h3>
 
@@ -82,7 +86,7 @@ const Cart = () => {
                         </p>
 
                         {/* PRICE */}
-                        <div className="flex mt-1  items-center">
+                        <div className="flex mt-1 items-center">
                           <span className="w-20 text-lg font-bold text-black">
                             {currency} {finalPrice.toFixed(2)}
                           </span>
@@ -123,7 +127,7 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    {/* RIGHT CONTENT */}
+                    {/* RIGHT */}
                     <div className="flex flex-row sm:flex-col items-end justify-between mt-4 sm:mt-0 sm:ml-auto px-3">
                       <div className="font-semibold w-20">
                         {currency} {(finalPrice * item.quantity).toFixed(2)}
@@ -143,52 +147,69 @@ const Cart = () => {
           </div>
 
           {/* RIGHT SIDE - SUMMARY */}
-          <div className="bg-white p-6 rounded shadow-sm h-fit md:col-span-1 lg:col-span-1 md:sticky md:top-24 m-6 md:mr-4 mt-4 md:mt-16 ">
-            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+          {cartCount > 0 && (
+            <div className="bg-white p-6 rounded shadow-sm h-fit md:col-span-1 lg:col-span-1 md:sticky md:top-24 m-6 md:mr-4 mt-4 md:mt-16">
+              <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Subtotal ({totalItems} items)</span>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Subtotal ({totalItems} items)</span>
+                  <span>
+                    {currency} {subtotal.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span>
+                    {shipping === 0 ? "Free" : `${currency} ${shipping}`}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Tax</span>
+                  <span>
+                    {currency} {tax.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <hr className="my-4" />
+
+              <div className="flex justify-between font-semibold text-lg">
+                <span>Total</span>
                 <span>
-                  {currency} {subtotal.toFixed(2)}
+                  {currency} {finalTotal.toFixed(2)}
                 </span>
               </div>
 
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>
-                  {shipping === 0 ? "Free" : `${currency} ${shipping}`}
-                </span>
-              </div>
+              {/* LOGIN-AWARE BUTTON */}
+              <button
+                onClick={() => {
+                  if (!user) {
+                    navigate("/login");
+                  } else {
+                    navigate("/checkout");
+                  }
+                }}
+                className={`w-full mt-4 py-2 rounded font-medium transition-all 
+                ${
+                  user
+                    ? "bg-lime-400 hover:bg-lime-500 text-black"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+              >
+                {user ? "Proceed to Checkout" : "Please Login First"}
+              </button>
 
-              <div className="flex justify-between">
-                <span>Tax</span>
-                <span>
-                  {currency} {tax.toFixed(2)}
-                </span>
-              </div>
+              <button
+                onClick={clearCart}
+                className="w-full mt-3 border py-2 text-sm hover:bg-gray-100 rounded"
+              >
+                Clear Cart
+              </button>
             </div>
-
-            <hr className="my-4" />
-
-            <div className="flex justify-between font-semibold text-lg">
-              <span>Total</span>
-              <span>
-                {currency} {finalTotal.toFixed(2)}
-              </span>
-            </div>
-
-            <button className="w-full bg-lime-400 mt-4 py-2 rounded font-medium hover:bg-lime-500">
-              Proceed to Checkout
-            </button>
-
-            <button
-              onClick={clearCart}
-              className="w-full mt-3 border py-2 text-sm hover:bg-gray-100 rounded"
-            >
-              Clear Cart
-            </button>
-          </div>
+          )}
         </div>
       </Container>
     </div>

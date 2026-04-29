@@ -1,6 +1,8 @@
 import fornova from "./fornova.svg";
 import fornova_word from "./fornova_word.svg";
 
+import stripe_logo from "./stripe_logo.png";
+
 import hero1 from "./hero1.png";
 import hero2 from "./hero2.png";
 import hero3 from "./hero3.png";
@@ -24,6 +26,7 @@ export const assets = {
   hero3,
   hero4,
   hero5,
+  stripe_logo,
 
   about,
   contact,
