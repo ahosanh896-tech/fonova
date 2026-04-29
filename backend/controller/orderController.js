@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
+import { stripe } from "../config/stripe.js";
 
 export const placeOrder = async (req, res) => {
   try {
@@ -92,10 +93,6 @@ export const placeOrder = async (req, res) => {
     });
   }
 };
-
-//export const orderStripe = async (req, res) => {};
-
-//export const verifyStripe = async (req, res) => {};
 
 export const getUserOrders = async (req, res) => {
   try {
