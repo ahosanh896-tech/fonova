@@ -6,7 +6,7 @@ const redisClient = createClient({
 
 // error handler
 redisClient.on("error", (err) => {
-  console.error(" Redis Client Error:", err);
+  console.error("Redis Client Error:", err);
 });
 
 // connect function
@@ -14,11 +14,17 @@ export const connectRedis = async () => {
   try {
     if (!redisClient.isOpen) {
       await redisClient.connect();
-      console.log(" Connected to Redis");
+      console.log("Connected to Redis");
     }
   } catch (error) {
-    console.error(" Failed to connect to Redis:", error);
+    console.error("Failed to connect to Redis:", error);
   }
+};
+
+// for BullMQ
+export const redisConnection = {
+  host: "127.0.0.1",
+  port: 6379,
 };
 
 export default redisClient;

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
+import { orderQueue } from "../queues/orderQueue.js";
 
 export const createOrderService = async ({
   userId,
@@ -81,6 +82,24 @@ export const createOrderService = async ({
 
     await session.commitTransaction();
     session.endSession();
+
+    orderQueue
+      .add(
+        "order-created",
+        {
+          orderId: order._id.toString(),
+          userId: order.user.toString(),
+          email: shippingAddress?.email || null,
+          total: totalPrice,
+        },
+        {
+          attempts: 3,
+          backoff: 5000,
+        },
+      )
+      .catch((err) => {
+        console.error("Queue error:", err);
+      });
 
     return order;
   } catch (err) {
