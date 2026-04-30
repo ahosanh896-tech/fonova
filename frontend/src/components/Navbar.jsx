@@ -1,7 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { Cart, Menu, RightArrow, Search, UserIcon } from "../Icon";
+import {
+  Cart,
+  Menu,
+  Notification,
+  RightArrow,
+  Search,
+  UserIcon,
+} from "../Icon";
 import UserMenu from "./UserMenu";
 import { ShopContext } from "../context/ShopContext";
 
@@ -51,7 +58,7 @@ const Navbar = () => {
       {/* NAVBAR */}
       <div
         className={`fixed top-0 left-0 w-full z-50
-          transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+          transition-transform duration-500 ease-in-out
           bg-white/70 backdrop-blur-lg
           ${hasShadow ? "shadow-md" : "shadow-none"}
           ${showNavbar ? "translate-y-0" : "-translate-y-24"}
@@ -60,7 +67,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between py-2 md:py-4 font-medium px-4 sm:px-[4vw] md:px-[5vw] lg:px-[6vw]">
           {/* logo */}
           <Link to="/" onClick={scrollToTop}>
-            <img src={assets.fornova} alt="" className="w-40 ml-[-10px]" />
+            <img src={assets.fornova} alt="" className="w-40 -ml-2.5" />
           </Link>
 
           {/* desktop menu */}
@@ -98,6 +105,7 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             <Search className="w-5 cursor-pointer" />
             <UserMenu />
+            <Notification />
 
             <Link to="/cart" className="relative">
               <Cart />
