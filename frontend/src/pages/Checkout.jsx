@@ -35,6 +35,7 @@ const Checkout = () => {
       })),
       shippingAddress: {
         fullName: `${data.firstName} ${data.lastName}`,
+        email: data.email,
         address: data.street,
         city: data.city,
         postalCode: data.zipcode,

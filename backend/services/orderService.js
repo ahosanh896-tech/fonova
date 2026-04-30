@@ -83,13 +83,15 @@ export const createOrderService = async ({
     await session.commitTransaction();
     session.endSession();
 
+    const queueEmail = shippingAddress?.email || paymentResult?.email || null;
+
     orderQueue
       .add(
         "order-created",
         {
           orderId: order._id.toString(),
           userId: order.user.toString(),
-          email: shippingAddress?.email || null,
+          email: queueEmail,
           total: totalPrice,
         },
         {

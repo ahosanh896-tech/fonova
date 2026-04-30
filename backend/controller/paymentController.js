@@ -31,18 +31,29 @@ export const createStripeSession = async (req, res) => {
       });
     }
 
+    const metadataItems = items
+      .map((item) => {
+        const productId = item._id || item.productId?._id;
+        return `${productId}:${item.quantity}`;
+      })
+      .join(",");
+
+    const email = address.email || req.user.email || null;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
+      ...(email ? { customer_email: email } : {}),
 
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cancel`,
 
       metadata: {
         userId: userId.toString(),
-        items: JSON.stringify(items),
+        items: metadataItems,
         address: JSON.stringify(address),
+        ...(email ? { email } : {}),
       },
     });
 
@@ -77,7 +88,10 @@ export const stripeWebhook = async (req, res) => {
     const session = event.data.object;
 
     const userId = session.metadata.userId;
-    const items = JSON.parse(session.metadata.items);
+    const items = session.metadata.items.split(",").map((item) => {
+      const [productId, quantity] = item.split(":");
+      return { _id: productId, quantity: Number(quantity) };
+    });
     const address = JSON.parse(session.metadata.address);
 
     // Prevent duplicate orders
@@ -123,7 +137,10 @@ export const verifyStripeSession = async (req, res) => {
     }
 
     const userId = session.metadata.userId;
-    const items = JSON.parse(session.metadata.items);
+    const items = session.metadata.items.split(",").map((item) => {
+      const [productId, quantity] = item.split(":");
+      return { _id: productId, quantity: Number(quantity) };
+    });
     const address = JSON.parse(session.metadata.address);
 
     // Check if order already exists

@@ -1,29 +1,44 @@
 import { useState, useEffect, useContext } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
-import {
-  Cart,
-  Menu,
-  Notification,
-  RightArrow,
-  Search,
-  UserIcon,
-} from "../Icon";
+import { Cart, Menu, NotificationIcon, RightArrow, Search } from "../Icon";
 import UserMenu from "./UserMenu";
 import { ShopContext } from "../context/ShopContext";
+import Notification from "./Notification";
+import { useNotification } from "../hooks/useNotification";
+import { useShop } from "../hooks/useShop";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [hasShadow, setHasShadow] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const { cartCount } = useContext(ShopContext);
+  const { user } = useShop();
+
+  const {
+    notifications,
+    unreadCount,
+    fetchNotifications,
+    markNotificationRead,
+    markAllRead,
+  } = useNotification();
+
+  const navigate = useNavigate();
+
+  // fetch notifications
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user, fetchNotifications]);
 
   // scroll to top
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth", // use "auto" if you want instant like YouTube
+      behavior: "smooth",
     });
   };
 
@@ -33,17 +48,14 @@ const Navbar = () => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
 
-      // shadow only after small scroll
       setHasShadow(currentScroll > 10);
 
-      // prevent tiny flicker
       if (Math.abs(currentScroll - lastScrollY) < 5) return;
 
-      // hide/show navbar
       if (currentScroll > lastScrollY && currentScroll > 120) {
-        setShowNavbar(false); // scrolling down
+        setShowNavbar(false);
       } else {
-        setShowNavbar(true); // scrolling up
+        setShowNavbar(true);
       }
 
       lastScrollY = currentScroll;
@@ -72,40 +84,47 @@ const Navbar = () => {
 
           {/* desktop menu */}
           <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
-            <NavLink
-              to="/"
-              onClick={scrollToTop}
-              className="flex flex-col items-center gap-1"
-            >
+            <NavLink to="/" onClick={scrollToTop}>
               <p>HOME</p>
-              <hr className="w-2/4 border-none h-px bg-gray-700 hidden" />
             </NavLink>
 
-            <NavLink
-              to="/collection"
-              onClick={scrollToTop}
-              className="flex flex-col items-center gap-1"
-            >
+            <NavLink to="/collection" onClick={scrollToTop}>
               <p>COLLECTION</p>
-              <hr className="w-2/4 border-none h-px bg-gray-700 hidden" />
             </NavLink>
 
-            <NavLink to="/about" className="flex flex-col items-center gap-1">
+            <NavLink to="/about">
               <p>ABOUT</p>
-              <hr className="w-2/4 border-none h-px bg-gray-700 hidden" />
             </NavLink>
 
-            <NavLink to="/contact" className="flex flex-col items-center gap-1">
+            <NavLink to="/contact">
               <p>CONTACT</p>
-              <hr className="w-2/4 border-none h-px bg-gray-700 hidden" />
             </NavLink>
           </ul>
 
           {/* right icons */}
-          <div className="flex items-center gap-6">
+          <div className="relative flex items-center gap-6">
             <Search className="w-5 cursor-pointer" />
             <UserMenu />
-            <Notification />
+
+            {/* NOTIFICATION BUTTON */}
+            <button
+              onClick={() => {
+                if (!user) {
+                  navigate("/login");
+                  return;
+                }
+                setNotificationsOpen((prev) => !prev);
+              }}
+              className="relative"
+            >
+              <NotificationIcon />
+
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
 
             <Link to="/cart" className="relative">
               <Cart />
@@ -121,6 +140,16 @@ const Navbar = () => {
               className="w-5 cursor-pointer sm:hidden"
             />
           </div>
+
+          {/* NOTIFICATION DROPDOWN */}
+          <Notification
+            notificationsOpen={notificationsOpen}
+            setNotificationsOpen={setNotificationsOpen}
+            notifications={notifications}
+            unreadCount={unreadCount}
+            markNotificationRead={markNotificationRead}
+            markAllRead={markAllRead}
+          />
         </div>
       </div>
 

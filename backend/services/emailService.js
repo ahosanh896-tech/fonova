@@ -4,7 +4,7 @@ export const sendOrderEmail = async ({ email, orderId, total }) => {
   if (!email) return;
 
   await transporter.sendMail({
-    from: process.env.SENDER_EMAIL,
+    from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
     to: email,
     subject: "Order Confirmed",
     html: `

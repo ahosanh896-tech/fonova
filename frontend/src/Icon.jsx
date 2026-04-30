@@ -216,7 +216,7 @@ export function Lock({ size = 24, className, ...props }) {
   );
 }
 
-export function Notification({ size = 24, className, ...props }) {
+export function NotificationIcon({ size = 24, className, ...props }) {
   return (
     <svg
       {...props}
