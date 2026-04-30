@@ -43,7 +43,7 @@ export function Cart({ size = 24, className, ...props }) {
   );
 }
 
-export function Search({ size = 24, className, ...props }) {
+export function SearchIcon({ size = 24, className, ...props }) {
   return (
     <svg
       {...props}

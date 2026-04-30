@@ -1,116 +1,99 @@
 import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SearchIcon } from "../Icon";
 
 const Search = () => {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const searchInputRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Focus on search input when opened
+  // Close search
+  const closeSearch = () => {
+    setIsOpen(false);
+    setQuery("");
+  };
+
+  // Focus input
   useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchOpen]);
+    if (isOpen) inputRef.current?.focus();
+  }, [isOpen]);
 
-  const handleSearchSubmit = (e) => {
+  // ESC close (no stale issue)
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        setQuery("");
+      }
+    };
+
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, []);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setSearchOpen(false);
+    const trimmed = query.trim();
 
-    const trimmed = searchText.trim();
-    if (trimmed) {
-      navigate(`/collection?keyword=${encodeURIComponent(trimmed)}`);
-    } else {
-      navigate("/collection");
-    }
-    setSearchText("");
-  };
+    closeSearch();
 
-  const handleClose = () => {
-    setSearchOpen(false);
-    setSearchText("");
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Escape") {
-      handleClose();
-    }
+    navigate(
+      trimmed
+        ? `/collection?keyword=${encodeURIComponent(trimmed)}`
+        : "/collection",
+    );
   };
 
   return (
     <>
-      {searchOpen ? (
-        // Expanded Search Bar
-        <form
-          onSubmit={handleSearchSubmit}
-          className="flex-1 max-w-md lg:max-w-2xl"
-        >
-          <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 border border-gray-200 focus-within:border-slate-700 focus-within:shadow-md transition">
-            {/* Search Icon */}
-            <svg
-              className="w-5 h-5 text-gray-400 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      {/* Trigger */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="p-2 hover:bg-gray-100 rounded-full transition"
+        aria-label="Open search"
+      >
+        <SearchIcon />
+      </button>
+
+      {/* Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          onClick={closeSearch}
+        />
+      )}
+
+      {/* Search Modal */}
+      {isOpen && (
+        <div className="fixed top-28 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-50 animate-fade-in">
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-center gap-3 bg-white/90 backdrop-blur-md border border-gray-200 rounded-full px-6 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition-all focus-within:border-slate-800 focus-within:shadow-[0_15px_40px_rgba(0,0,0,0.18)]">
+              {/* Icon */}
+              <SearchIcon className="w-5 h-5 text-gray-400" />
+
+              {/* Input */}
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search furniture, chairs, tables..."
+                className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400"
               />
-            </svg>
 
-            {/* Input */}
-            <input
-              ref={searchInputRef}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search furniture, chairs, tables..."
-              className="flex-1 outline-none text-sm bg-transparent text-gray-900 placeholder-gray-400"
-            />
-
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={handleClose}
-              className="flex-shrink-0 p-1 hover:bg-gray-100 rounded-full transition"
-              aria-label="Close search"
-            >
-              <svg
-                className="w-5 h-5 text-gray-600"
-                fill="currentColor"
-                viewBox="0 0 24 24"
+              {/* Close Button ONLY */}
+              <button
+                type="button"
+                onClick={closeSearch}
+                className="text-gray-500 hover:text-black transition"
+                aria-label="Close search"
               >
-                <path d="M18.3 5.71a.996.996 0 0 0-1.41 0L12 10.59 7.11 5.7A.996.996 0 1 0 5.7 7.11L10.59 12 5.7 16.89a.996.996 0 1 0 1.41 1.41L12 13.41l4.89 4.89a.996.996 0 1 0 1.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z" />
-              </svg>
-            </button>
-          </div>
-        </form>
-      ) : (
-        // Small Search Icon
-        <button
-          type="button"
-          onClick={() => setSearchOpen(true)}
-          aria-label="Open search"
-          className="flex items-center p-2 hover:bg-gray-100 rounded-full transition"
-        >
-          <svg
-            className="w-5 h-5 text-gray-700 cursor-pointer"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </button>
+                ✕
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </>
   );

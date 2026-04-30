@@ -30,19 +30,12 @@ const Navbar = () => {
 
   const navigate = useNavigate();
 
-  // fetch notifications
   useEffect(() => {
-    if (user) {
-      fetchNotifications();
-    }
-  }, [user, fetchNotifications]);
+    if (user) fetchNotifications();
+  }, [user]);
 
-  // scroll to top
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -73,11 +66,10 @@ const Navbar = () => {
       {/* NAVBAR */}
       <div
         className={`fixed top-0 left-0 w-full z-50
-          transition-transform duration-500 ease-in-out
-          bg-white/70 backdrop-blur-lg
-          ${hasShadow ? "shadow-md" : "shadow-none"}
-          ${showNavbar ? "translate-y-0" : "-translate-y-24"}
-        `}
+        transition-transform duration-500 ease-in-out
+        bg-white/70 backdrop-blur-lg
+        ${hasShadow ? "shadow-md" : "shadow-none"}
+        ${showNavbar ? "translate-y-0" : "-translate-y-24"}`}
       >
         <div className="flex items-center justify-between py-2 md:py-4 font-medium px-4 sm:px-[4vw] md:px-[5vw] lg:px-[6vw]">
           {/* logo */}
@@ -87,29 +79,43 @@ const Navbar = () => {
 
           {/* desktop menu */}
           <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
-            <NavLink to="/" onClick={scrollToTop}>
+            <NavLink
+              to="/"
+              onClick={scrollToTop}
+              className="flex flex-col items-center gap-1"
+            >
               <p>HOME</p>
+              <hr className="w-2/4 hidden" />
             </NavLink>
 
-            <NavLink to="/collection" onClick={scrollToTop}>
+            <NavLink
+              to="/collection"
+              onClick={scrollToTop}
+              className="flex flex-col items-center gap-1"
+            >
               <p>COLLECTION</p>
+              <hr className="w-2/4 hidden" />
             </NavLink>
 
-            <NavLink to="/about">
+            <NavLink to="/about" className="flex flex-col items-center gap-1">
               <p>ABOUT</p>
+              <hr className="w-2/4 hidden" />
             </NavLink>
 
-            <NavLink to="/contact">
+            <NavLink to="/contact" className="flex flex-col items-center gap-1">
               <p>CONTACT</p>
+              <hr className="w-2/4 hidden" />
             </NavLink>
           </ul>
 
           {/* right icons */}
-          <div className="relative flex items-center gap-6">
+          <div className="relative flex items-center gap-3 sm:gap-6">
+            {/* ✅ UPDATED SEARCH */}
             <Search />
+
             <UserMenu />
 
-            {/* NOTIFICATION BUTTON */}
+            {/* notification */}
             <button
               onClick={() => {
                 if (!user) {
@@ -129,6 +135,7 @@ const Navbar = () => {
               )}
             </button>
 
+            {/* cart */}
             <Link to="/cart" className="relative">
               <Cart />
               {cartCount > 0 && (
@@ -138,13 +145,14 @@ const Navbar = () => {
               )}
             </Link>
 
+            {/* mobile menu */}
             <Menu
               onClick={() => setVisible(true)}
               className="w-5 cursor-pointer sm:hidden"
             />
           </div>
 
-          {/* NOTIFICATION DROPDOWN */}
+          {/* notification dropdown */}
           <Notification
             notificationsOpen={notificationsOpen}
             setNotificationsOpen={setNotificationsOpen}
@@ -168,7 +176,7 @@ const Navbar = () => {
 
       {/* mobile sidebar */}
       <div
-        className={`fixed top-0 right-0 bg-white z-60 ${
+        className={`fixed top-0 right-0 bg-white z-[60] ${
           visible ? "w-56" : "w-0"
         } transition-all duration-500 h-screen overflow-hidden`}
       >
@@ -191,7 +199,6 @@ const Navbar = () => {
           >
             HOME
           </NavLink>
-
           <NavLink
             onClick={() => {
               setVisible(false);
@@ -202,7 +209,6 @@ const Navbar = () => {
           >
             COLLECTION
           </NavLink>
-
           <NavLink
             onClick={() => setVisible(false)}
             to="/about"
@@ -210,7 +216,6 @@ const Navbar = () => {
           >
             ABOUT
           </NavLink>
-
           <NavLink
             onClick={() => setVisible(false)}
             to="/contact"
