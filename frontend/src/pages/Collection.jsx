@@ -5,7 +5,7 @@ import { useProducts } from "../hooks/useProducts";
 import { ProductItem } from "../components/ProductItem";
 import { useForm, useWatch } from "react-hook-form";
 import { LineVertical } from "../Icon";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 const Collection = () => {
   const [page, setPage] = useState(1);
@@ -13,12 +13,14 @@ const Collection = () => {
   const location = useLocation();
 
   const { register, control, setValue } = useForm();
+  const [searchParams] = useSearchParams();
   const { products, loading, fetchProducts, total, pages, clearProducts } =
     useProducts();
 
   // Watch filters
   const category = useWatch({ control, name: "category" });
   const subCategory = useWatch({ control, name: "subCategory" });
+  const keyword = useWatch({ control, name: "keyword" });
 
   const minPrice = useWatch({ control, name: "minPrice" });
   const maxPrice = useWatch({ control, name: "maxPrice" });
@@ -32,11 +34,12 @@ const Collection = () => {
     () => ({
       category,
       subCategory,
+      keyword,
       minPrice,
       maxPrice,
       sortType,
     }),
-    [category, subCategory, minPrice, maxPrice, sortType],
+    [category, subCategory, keyword, minPrice, maxPrice, sortType],
   );
 
   // Showing count
@@ -48,6 +51,10 @@ const Collection = () => {
       setValue("category", location.state.category);
     }
   }, [location.state, setValue]);
+
+  useEffect(() => {
+    setValue("keyword", searchParams.get("keyword")?.trim() || "");
+  }, [searchParams, setValue]);
 
   // Reset page and clear products when filters change
   useEffect(() => {

@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { Cart, Menu, NotificationIcon, RightArrow, Search } from "../Icon";
+import { Cart, Menu, NotificationIcon, RightArrow } from "../Icon";
+import Search from "./Search";
 import UserMenu from "./UserMenu";
 import { ShopContext } from "../context/ShopContext";
 import Notification from "./Notification";
@@ -105,7 +106,7 @@ const Navbar = () => {
 
           {/* right icons */}
           <div className="relative flex items-center gap-6">
-            <Search className="w-5 cursor-pointer" />
+            <Search />
             <UserMenu />
 
             {/* NOTIFICATION BUTTON */}
