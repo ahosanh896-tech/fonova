@@ -67,6 +67,26 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
+//admin
+export const getAllOrdersAdmin = async (req, res) => {
+  try {
+    const orders = await orderModel
+      .find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // GET SINGLE ORDER
 export const getSingleOrder = async (req, res) => {
   try {

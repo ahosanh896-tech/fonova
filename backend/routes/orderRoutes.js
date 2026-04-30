@@ -10,6 +10,7 @@ import {
   placeOrder,
   updateOrderStatus,
   updatePaymentStatus,
+  getAllOrdersAdmin,
 } from "../controller/orderController.js";
 
 const orderRouter = express.Router();
@@ -17,6 +18,8 @@ const orderRouter = express.Router();
 orderRouter.post("/place", userAuth, placeOrder);
 
 orderRouter.get("/my-orders", userAuth, getUserOrders);
+
+orderRouter.get("/admin/all", userAuth, isAdmin, getAllOrdersAdmin);
 orderRouter.put("/cancel/:id", userAuth, cancelOrder);
 
 orderRouter.put("/status/:id", userAuth, isAdmin, updateOrderStatus);
