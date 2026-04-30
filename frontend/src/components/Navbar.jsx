@@ -23,6 +23,8 @@ const Navbar = () => {
     fetchNotifications,
     markNotificationRead,
     markAllRead,
+    deleteNotification,
+    deleteAllNotifications,
   } = useNotification();
 
   const navigate = useNavigate();
@@ -149,6 +151,8 @@ const Navbar = () => {
             unreadCount={unreadCount}
             markNotificationRead={markNotificationRead}
             markAllRead={markAllRead}
+            deleteNotification={deleteNotification}
+            deleteAllNotifications={deleteAllNotifications}
           />
         </div>
       </div>
