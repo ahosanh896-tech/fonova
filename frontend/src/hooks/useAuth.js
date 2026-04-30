@@ -187,7 +187,8 @@ export const useAuth = () => {
       const data = await isAuthApi();
       setUser(data.success ? data.user : null);
       return data;
-    } catch {
+    } catch (error) {
+      // Silent failure - unauthenticated users are expected
       setUser(null);
       return null;
     }

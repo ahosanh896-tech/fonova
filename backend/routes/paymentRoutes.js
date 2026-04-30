@@ -4,6 +4,7 @@ import userAuth from "../middleware/userAuth.js";
 import {
   createStripeSession,
   stripeWebhook,
+  verifyStripeSession,
 } from "../controller/paymentController.js";
 
 const paymentRouter = express.Router();
@@ -15,5 +16,7 @@ paymentRouter.post(
   express.raw({ type: "application/json" }),
   stripeWebhook,
 );
+
+paymentRouter.post("/stripe/verify-session", userAuth, verifyStripeSession);
 
 export default paymentRouter;

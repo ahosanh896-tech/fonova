@@ -31,6 +31,10 @@ export const useCart = () => {
 
       return data;
     } catch (error) {
+      // Silently fail for unauthenticated users
+      if (error.response?.status === 401) {
+        return { success: false };
+      }
       return handleError(error);
     } finally {
       setLoading(false);
@@ -142,8 +146,12 @@ export const useCart = () => {
 
   // CLEAR CART
   const clearCart = useCallback(async () => {
-    const prevCart = [...cart];
-    setCart([]);
+    let prevCart;
+
+    setCart((currentCart) => {
+      prevCart = currentCart;
+      return [];
+    });
 
     try {
       const data = await clearCartApi();
@@ -160,7 +168,7 @@ export const useCart = () => {
       setCart(prevCart);
       return handleError(error);
     }
-  }, [cart]);
+  }, []);
 
   //total amount
   const round = (num) => Math.round(num * 100) / 100;

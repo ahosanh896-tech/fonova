@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
+import Success from "./pages/Success";
 
 const App = () => {
   const { checkAuth } = useShop();
@@ -56,6 +57,7 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/success" element={<Success />} />
         </Routes>
       </div>
 

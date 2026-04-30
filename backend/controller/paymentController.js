@@ -1,5 +1,6 @@
 import { stripe } from "../config/stripe.js";
 import productModel from "../models/productModel.js";
+import orderModel from "../models/orderModel.js";
 import { createOrderService } from "../services/orderService.js";
 
 export const createStripeSession = async (req, res) => {
@@ -11,7 +12,12 @@ export const createStripeSession = async (req, res) => {
     const line_items = [];
 
     for (const item of items) {
-      const product = await productModel.findById(item._id);
+      const productId = item._id || item.productId?._id;
+      if (!productId) {
+        throw new Error("Invalid item data");
+      }
+
+      const product = await productModel.findById(productId);
 
       if (!product) throw new Error("Product not found");
 
@@ -101,4 +107,61 @@ export const stripeWebhook = async (req, res) => {
   }
 
   res.json({ received: true });
+};
+
+export const verifyStripeSession = async (req, res) => {
+  try {
+    const { session_id } = req.body;
+
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (session.payment_status !== "paid") {
+      return res.status(400).json({
+        success: false,
+        message: "Payment not completed",
+      });
+    }
+
+    const userId = session.metadata.userId;
+    const items = JSON.parse(session.metadata.items);
+    const address = JSON.parse(session.metadata.address);
+
+    // Check if order already exists
+    const existingOrder = await orderModel.findOne({
+      "paymentResult.id": session.id,
+    });
+
+    if (existingOrder) {
+      return res.json({
+        success: true,
+        message: "Order already exists",
+      });
+    }
+
+    await createOrderService({
+      userId,
+      orderItems: items.map((i) => ({
+        product: i._id,
+        quantity: i.quantity,
+      })),
+      shippingAddress: address,
+      paymentMethod: "Stripe",
+      paymentStatus: "paid",
+      paymentResult: {
+        id: session.id,
+        status: session.payment_status,
+        email: session.customer_details?.email,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Order created successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
 };

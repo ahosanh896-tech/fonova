@@ -46,7 +46,10 @@ const Checkout = () => {
     // Stripe
     if (method === "Stripe") {
       await createStripePayment({
-        items: cart,
+        items: cart.map((item) => ({
+          _id: item.productId._id,
+          quantity: item.quantity,
+        })),
         address: payload.shippingAddress,
       });
     }

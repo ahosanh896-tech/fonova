@@ -10,7 +10,7 @@ export const usePayment = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/api/stripe/create-session", payload);
+      const res = await api.post("/api/payment/stripe/create-session", payload);
 
       if (res.data.success) {
         // THIS IS THE REDIRECT
