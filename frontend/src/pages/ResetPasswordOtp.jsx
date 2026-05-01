@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useShop } from "../hooks/useShop";
 import { useNavigate } from "react-router-dom";
+import { CloseEye, OpenEye } from "../Icon";
 
 const ResetPasswordOtp = () => {
   const { resetPassword, sendResetOtp, loading } = useShop();
@@ -30,7 +31,7 @@ const ResetPasswordOtp = () => {
 
   const inputRefs = useRef([]);
 
-  // ✅ REGISTER OTP FIELD (IMPORTANT FIX)
+  // REGISTER OTP FIELD (IMPORTANT FIX)
   useEffect(() => {
     register("otp", {
       required: "OTP is required",
@@ -199,7 +200,7 @@ const ResetPasswordOtp = () => {
             onClick={() => setShowPassword((prev) => !prev)}
             className="absolute right-3 top-2 cursor-pointer"
           >
-            {showPassword ? "🙈" : "👁️"}
+            {showPassword ? <CloseEye /> : <OpenEye />}
           </span>
         </div>
 

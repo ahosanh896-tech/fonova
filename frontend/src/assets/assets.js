@@ -36,26 +36,31 @@ export const assets = {
 
 export const products = [
   {
+    id: "nordic-dining-set",
     name: "Nordic Dining Set",
     image: assets.hero1,
     description: "Create warm and stylish moments around every meal daily.",
   },
   {
+    id: "aura-sculpt-chair",
     name: "Aura Sculpt Chair",
     image: assets.hero2,
     description: "Turn any space into a bold and artistic statement piece.",
   },
   {
+    id: "crimson-lounge-duo",
     name: "Crimson Lounge Duo",
     image: assets.hero3,
     description: "Relax in comfort with a perfect blend of modern style.",
   },
   {
+    id: "midnight-luxe-sofa",
     name: "Midnight Luxe Sofa",
     image: assets.hero4,
     description: "Add depth and elegance with premium textured comfort.",
   },
   {
+    id: "cloud-haven-sofa",
     name: "Cloud Haven Sofa",
     image: assets.hero5,
     description: "Unwind daily in soft comfort with a calm modern touch.",

@@ -39,7 +39,7 @@ const OurProduct = () => {
               ))}
             </div>
             <Link to="/collection">
-              <button className="border border-amber-400 text-amber-400 px-8 py-2 bg-gray-50">
+              <button className="border shadow-sm border-amber-400 text-amber-400 px-8 py-2 bg-gray-50">
                 Show More
               </button>
             </Link>

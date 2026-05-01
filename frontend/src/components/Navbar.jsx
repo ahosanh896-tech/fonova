@@ -32,7 +32,7 @@ const Navbar = () => {
 
   useEffect(() => {
     if (user) fetchNotifications();
-  }, [user]);
+  }, [user, fetchNotifications]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -63,59 +63,59 @@ const Navbar = () => {
 
   return (
     <div>
-      {/* NAVBAR */}
+      {/* Navbar */}
       <div
-        className={`fixed top-0 left-0 w-full z-50
-        transition-transform duration-500 ease-in-out
+        className={`fixed top-0 left-0 w-full z-50 transition-transform duration-500 ease-in-out
         bg-white/70 backdrop-blur-lg
         ${hasShadow ? "shadow-md" : "shadow-none"}
         ${showNavbar ? "translate-y-0" : "-translate-y-24"}`}
       >
-        <div className="flex items-center justify-between py-2 md:py-4 font-medium px-4 sm:px-[4vw] md:px-[5vw] lg:px-[6vw]">
-          {/* logo */}
+        <div className="flex items-center justify-between py-3 md:py-4 px-4 sm:px-[4vw] md:px-[5vw] lg:px-[6vw]">
+          {/* Logo */}
           <Link to="/" onClick={scrollToTop}>
             <img src={assets.fornova} alt="" className="w-40 -ml-2.5" />
           </Link>
 
-          {/* desktop menu */}
-          <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
+          {/* Desktop Menu */}
+          <ul className="hidden sm:flex gap-8 text-sm text-gray-700">
             <NavLink
               to="/"
               onClick={scrollToTop}
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center hover:text-black transition-colors "
             >
               <p>HOME</p>
               <hr className="w-2/4 hidden" />
             </NavLink>
-
             <NavLink
               to="/collection"
               onClick={scrollToTop}
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center hover:text-black transition-colors "
             >
               <p>COLLECTION</p>
               <hr className="w-2/4 hidden" />
             </NavLink>
-
-            <NavLink to="/about" className="flex flex-col items-center gap-1">
+            <NavLink
+              to="/about"
+              className="flex flex-col items-center hover:text-black transition-colors "
+            >
               <p>ABOUT</p>
               <hr className="w-2/4 hidden" />
             </NavLink>
-
-            <NavLink to="/contact" className="flex flex-col items-center gap-1">
+            <NavLink
+              to="/contact"
+              className="flex flex-col items-center hover:text-black transition-colors "
+            >
               <p>CONTACT</p>
               <hr className="w-2/4 hidden" />
             </NavLink>
           </ul>
 
-          {/* right icons */}
-          <div className="relative flex items-center gap-3 sm:gap-6">
-            {/* ✅ UPDATED SEARCH */}
+          {/* Right Icons */}
+          <div className="flex items-center gap-3 sm:gap-6">
             <Search />
-
             <UserMenu />
 
-            {/* notification */}
+            {/* Notification */}
             <button
               onClick={() => {
                 if (!user) {
@@ -127,7 +127,6 @@ const Navbar = () => {
               className="relative"
             >
               <NotificationIcon />
-
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
                   {unreadCount}
@@ -135,7 +134,7 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* cart */}
+            {/* Cart */}
             <Link to="/cart" className="relative">
               <Cart />
               {cartCount > 0 && (
@@ -145,14 +144,14 @@ const Navbar = () => {
               )}
             </Link>
 
-            {/* mobile menu */}
+            {/* Mobile Menu Button */}
             <Menu
               onClick={() => setVisible(true)}
               className="w-5 cursor-pointer sm:hidden"
             />
           </div>
 
-          {/* notification dropdown */}
+          {/* Notification Dropdown */}
           <Notification
             notificationsOpen={notificationsOpen}
             setNotificationsOpen={setNotificationsOpen}
@@ -166,7 +165,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* overlay */}
+      {/* Backdrop */}
       {visible && (
         <div
           onClick={() => setVisible(false)}
@@ -174,55 +173,78 @@ const Navbar = () => {
         />
       )}
 
-      {/* mobile sidebar */}
+      {/* Mobile Sidebar */}
       <div
-        className={`fixed top-0 right-0 bg-white z-[60] ${
-          visible ? "w-56" : "w-0"
-        } transition-all duration-500 h-screen overflow-hidden`}
+        className={`fixed top-0 right-0 bg-white z-[60] h-screen overflow-hidden transition-all duration-300 ${
+          visible ? "w-64" : "w-0"
+        }`}
       >
-        <div className="flex flex-col text-gray-600">
-          <div
-            onClick={() => setVisible(false)}
-            className="flex items-center gap-4 p-3 cursor-pointer"
-          >
-            <RightArrow className="h-5" />
-            <p>Back</p>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b">
+            <p className="text-lg font-medium">Menu</p>
+            <div
+              onClick={() => setVisible(false)}
+              className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-black"
+            >
+              <RightArrow className="h-4 rotate-180" />
+              <span className="text-sm">Close</span>
+            </div>
           </div>
 
-          <NavLink
-            onClick={() => {
-              setVisible(false);
-              scrollToTop();
-            }}
-            to="/"
-            className="py-2 pl-6 border"
-          >
-            HOME
-          </NavLink>
-          <NavLink
-            onClick={() => {
-              setVisible(false);
-              scrollToTop();
-            }}
-            to="/collection"
-            className="py-2 pl-6 border"
-          >
-            COLLECTION
-          </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            to="/about"
-            className="py-2 pl-6 border"
-          >
-            ABOUT
-          </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            to="/contact"
-            className="py-2 pl-6 border"
-          >
-            CONTACT
-          </NavLink>
+          {/* Navigation Links */}
+          <div className="flex flex-col mt-2 text-gray-700">
+            <NavLink
+              to="/"
+              onClick={() => {
+                setVisible(false);
+                scrollToTop();
+              }}
+              className={({ isActive }) =>
+                `px-6 py-3 text-sm transition-colors ${
+                  isActive ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+                }`
+              }
+            >
+              HOME
+            </NavLink>
+            <NavLink
+              to="/collection"
+              onClick={() => {
+                setVisible(false);
+                scrollToTop();
+              }}
+              className={({ isActive }) =>
+                `px-6 py-3 text-sm transition-colors ${
+                  isActive ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+                }`
+              }
+            >
+              COLLECTION
+            </NavLink>
+            <NavLink
+              to="/about"
+              onClick={() => setVisible(false)}
+              className={({ isActive }) =>
+                `px-6 py-3 text-sm transition-colors ${
+                  isActive ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+                }`
+              }
+            >
+              ABOUT
+            </NavLink>
+            <NavLink
+              to="/contact"
+              onClick={() => setVisible(false)}
+              className={({ isActive }) =>
+                `px-6 py-3 text-sm transition-colors ${
+                  isActive ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+                }`
+              }
+            >
+              CONTACT
+            </NavLink>
+          </div>
         </div>
       </div>
     </div>

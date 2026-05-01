@@ -182,7 +182,7 @@ const Categories = () => {
             onClick={() => handleCategoryClick(item.name)}
             className="group cursor-pointer"
           >
-            <div className="overflow-hidden rounded-xl">
+            <div className="overflow-hidden shadow-lg rounded-xl">
               <img
                 src={item.image}
                 alt={item.name}
