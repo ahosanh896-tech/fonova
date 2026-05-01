@@ -28,7 +28,7 @@ export const ProductItem = ({
           className="w-full h-56 object-cover group-hover:scale-105 transition duration-300"
         />
 
-        {showDiscount && discount && (
+        {showDiscount && discount > 0 && (
           <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
             - {discount}%
           </span>
@@ -41,7 +41,7 @@ export const ProductItem = ({
         <p className="text-sm text-gray-500">{category}</p>
 
         <div className="mt-2">
-          {showDiscount && finalPrice ? (
+          {showDiscount && discount > 0 && finalPrice ? (
             <>
               <span className="font-semibold text-gray-900">
                 {currency}
