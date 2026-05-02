@@ -486,6 +486,36 @@ export const restoreProduct = async (req, res) => {
   }
 };
 
+export const getDeletedProducts = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const query = { isActive: false };
+
+    const products = await productModel
+      .find(query)
+      .sort({ updatedAt: -1 })
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit));
+
+    const total = await productModel.countDocuments(query);
+
+    res.json({
+      success: true,
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / Number(limit)),
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const compareProducts = async (req, res) => {
   try {
     const { ids } = req.query;

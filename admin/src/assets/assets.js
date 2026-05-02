@@ -12,6 +12,7 @@ import white_arrow from "./white_arrow.svg";
 import upload_image from "./upload_image.svg";
 import remove from "./remove.svg";
 import remove1 from "./remove1.svg";
+import restore from "./restore.svg";
 
 import image_hero1 from "./image_hero1.jpg";
 import image_hero2 from "./image_hero2.jpg";
@@ -32,6 +33,7 @@ export const assets = {
   upload_image,
   remove,
   remove1,
+  restore,
 
   image_hero1,
   image_hero2,

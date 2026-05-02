@@ -14,6 +14,7 @@ import {
   addReview,
   updateReview,
   deleteReview,
+  getDeletedProducts,
 } from "../controller/productController.js";
 
 const productRouter = express.Router();
@@ -40,6 +41,7 @@ productRouter.put("/restore/:id", userAuth, isAdmin, restoreProduct);
 
 productRouter.get("/", getProducts);
 productRouter.get("/bestsellers", getBestsellerProducts);
+productRouter.get("/trash", userAuth, isAdmin, getDeletedProducts);
 productRouter.get("/slug/:slug", getSingleProduct);
 
 productRouter.post("/review/:id", userAuth, addReview);

@@ -8,7 +8,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 const EditProduct = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // id for PUT /api/product/:id
   const productId = searchParams.get("id");
+  // slug for GET /api/product/slug/:slug
+  const productSlug = searchParams.get("slug");
 
   const [show, setShow] = useState(false);
   const [imagesPreview, setImagesPreview] = useState([]);
@@ -68,10 +72,10 @@ const EditProduct = () => {
     name: "variants",
   });
 
-  // Fetch product data
+  // Fetch product data by SLUG
   useEffect(() => {
-    if (!productId) {
-      errorToast("No product ID provided");
+    if (!productId || !productSlug) {
+      errorToast("Missing product id/slug");
       navigate("/list");
       return;
     }
@@ -79,12 +83,12 @@ const EditProduct = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const res = await Api.get(`/api/product/slug/${productId}`);
+
+        const res = await Api.get(`/api/product/slug/${productSlug}`);
 
         if (res.data.success) {
           const product = res.data.product;
 
-          // Set form values
           setValue("name", product.name);
           setValue("description", product.description);
           setValue("shortDescription", product.shortDescription || "");
@@ -104,16 +108,15 @@ const EditProduct = () => {
           setValue("featured", product.featured);
           setValue("newArrival", product.newArrival);
 
-          // Tags
           if (product.tags && product.tags.length > 0) {
             setValue("tags", product.tags.join(", "));
           }
 
-          // Set existing images
           setExistingImages(product.images || []);
 
-          // Set variants
+          // Variants
           if (product.variants && product.variants.length > 0) {
+            // prevent duplicates if effect runs again
             product.variants.forEach((variant) => {
               addVariant({
                 name: variant.name || "",
@@ -138,7 +141,7 @@ const EditProduct = () => {
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [productId, productSlug, navigate, setValue, addVariant]);
 
   const handleImageChange = (index, e) => {
     const file = e.target.files[0];
@@ -201,6 +204,11 @@ const EditProduct = () => {
 
   const onSubmit = async (data) => {
     try {
+      if (!productId) {
+        errorToast("Missing product id");
+        return;
+      }
+
       const formData = new FormData();
 
       // Basic fields
@@ -221,9 +229,7 @@ const EditProduct = () => {
 
       // New images
       imagesPreview.forEach((file) => {
-        if (file) {
-          formData.append("images", file);
-        }
+        if (file) formData.append("images", file);
       });
 
       // Removed images
@@ -253,7 +259,7 @@ const EditProduct = () => {
         : [];
       formData.append("tags", JSON.stringify(tagsArray));
 
-      // API call
+      // PUT uses _id
       const res = await Api.put(`/api/product/${productId}`, formData);
 
       if (res.data.success) {
@@ -263,7 +269,6 @@ const EditProduct = () => {
         errorToast(res.data.message);
       }
     } catch (error) {
-      console.log(error);
       errorToast(error.response?.data?.message || "Failed to update product");
     }
   };
@@ -290,12 +295,16 @@ const EditProduct = () => {
 
           {/* Existing Images */}
           {existingImages.map((img, index) => (
-            <div key={`existing-${index}`} className="relative mb-4">
+            <div
+              key={`existing-${index}`}
+              className="relative mb-4 w-full flex items-center justify-center"
+            >
               <img
                 src={img.url}
                 alt={`Existing ${index + 1}`}
-                className="w-40 h-40 object-cover rounded"
+                className="w-40 h-40 object-cover rounded block mx-auto object-center"
               />
+
               <button
                 type="button"
                 onClick={() => handleRemoveExistingImage(index)}
@@ -333,11 +342,11 @@ const EditProduct = () => {
                   <p>Drop image here</p>
                 </div>
               ) : imagesPreview[index] ? (
-                <div className="relative">
+                <div className="relative w-full h-40 flex items-center justify-center">
                   <img
                     src={URL.createObjectURL(imagesPreview[index])}
                     alt=""
-                    className="w-40 h-40 object-cover mb-2 rounded"
+                    className="w-40 h-40 object-cover mb-2 rounded block mx-auto object-center"
                   />
                   <button
                     type="button"
@@ -434,6 +443,7 @@ const EditProduct = () => {
                 </p>
               )}
             </div>
+
             <div>
               <h2 className="text-gray-700">Sub category</h2>
               <select
@@ -446,6 +456,7 @@ const EditProduct = () => {
                 <option value="bed">Bed</option>
               </select>
             </div>
+
             <div>
               <h2 className="text-gray-700">Brand</h2>
               <input
@@ -475,6 +486,7 @@ const EditProduct = () => {
                 </p>
               )}
             </div>
+
             <div>
               <h2>Discount %</h2>
               <input
@@ -484,6 +496,7 @@ const EditProduct = () => {
                 {...register("discount")}
               />
             </div>
+
             <div>
               <h2>Stock *</h2>
               <input
@@ -517,6 +530,7 @@ const EditProduct = () => {
                 {...register("color")}
               />
             </div>
+
             <div>
               <h2>Material</h2>
               <input
@@ -526,6 +540,7 @@ const EditProduct = () => {
                 {...register("material")}
               />
             </div>
+
             <div>
               <h2>Weight</h2>
               <input
@@ -535,6 +550,7 @@ const EditProduct = () => {
                 {...register("weight")}
               />
             </div>
+
             <div>
               <h2>Length</h2>
               <input
@@ -544,6 +560,7 @@ const EditProduct = () => {
                 {...register("length")}
               />
             </div>
+
             <div>
               <h2>Width</h2>
               <input
@@ -553,6 +570,7 @@ const EditProduct = () => {
                 {...register("width")}
               />
             </div>
+
             <div>
               <h2>Height</h2>
               <input
@@ -581,10 +599,12 @@ const EditProduct = () => {
               <input type="checkbox" {...register("bestseller")} />
               Bestseller
             </label>
+
             <label className="flex items-center gap-2">
               <input type="checkbox" {...register("featured")} />
               Featured
             </label>
+
             <label className="flex items-center gap-2">
               <input type="checkbox" {...register("newArrival")} />
               New Arrival
@@ -616,6 +636,7 @@ const EditProduct = () => {
                       {...register(`variants.${i}.name`)}
                     />
                   </div>
+
                   <div>
                     <h2>Price</h2>
                     <input
@@ -625,6 +646,7 @@ const EditProduct = () => {
                       {...register(`variants.${i}.price`)}
                     />
                   </div>
+
                   <div>
                     <h2>Stock</h2>
                     <input
@@ -634,6 +656,7 @@ const EditProduct = () => {
                       {...register(`variants.${i}.stock`)}
                     />
                   </div>
+
                   <div>
                     <h2>Color</h2>
                     <input
@@ -642,6 +665,7 @@ const EditProduct = () => {
                       {...register(`variants.${i}.color`)}
                     />
                   </div>
+
                   <div className="flex items-end ml-8 pb-2">
                     <button
                       type="button"
@@ -673,7 +697,7 @@ const EditProduct = () => {
           <br />
 
           {/* Submit and Cancel Buttons */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 max-w-md">
             <button
               type="submit"
               disabled={isSubmitting}
