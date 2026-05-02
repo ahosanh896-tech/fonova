@@ -34,6 +34,12 @@ const Navbar = () => {
     if (user) fetchNotifications();
   }, [user, fetchNotifications]);
 
+  useEffect(() => {
+    if (notificationsOpen) {
+      fetchNotifications();
+    }
+  }, [notificationsOpen, fetchNotifications]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

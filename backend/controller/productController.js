@@ -218,7 +218,7 @@ export const getSingleProduct = async (req, res) => {
         isActive: true,
       })
       .select("name slug price images rating")
-      .limit(4)
+      .limit(5)
       .lean();
 
     //limit reviews

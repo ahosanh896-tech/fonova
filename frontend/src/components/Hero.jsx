@@ -202,7 +202,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative flex flex-col sm:flex-row w-full overflow-hidden
+      className="relative flex flex-col-reverse sm:flex-row w-full overflow-hidden
                  border border-gray-200 bg-white shadow-sm
                  sm:min-h-[450px] xl:min-h-[600px]"
       onMouseEnter={() => {
@@ -222,7 +222,10 @@ export default function Hero() {
                         bg-[radial-gradient(ellipse_at_10%_60%,#f0ede8_0%,transparent_65%)]"
         />
 
-        <div ref={textRef} className="relative w-full max-w-md space-y-6">
+        <div
+          ref={textRef}
+          className="relative w-full max-w-md xl:max-w-lg space-y-6"
+        >
           <div className="flex items-center gap-3">
             <span className="h-px w-8 bg-gray-400" />
             <span

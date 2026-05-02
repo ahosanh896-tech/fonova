@@ -8,7 +8,7 @@ const Notification = ({
   markNotificationRead,
   markAllRead,
   deleteNotification,
-  deleteAllNotifications, // ✅ NEW PROP
+  deleteAllNotifications,
 }) => {
   const hasNotifications = notifications.length > 0;
 

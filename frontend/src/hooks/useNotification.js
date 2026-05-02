@@ -136,7 +136,10 @@ export const useNotification = () => {
     }
   }, [notifications, handleError]);
 
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
   return {
+    unreadCount,
     notifications,
     loading,
     fetchNotifications,
