@@ -1,8 +1,14 @@
+import "dotenv/config";
+import connectDB from "../config/mongodb.js";
+
 import { Worker } from "bullmq";
 import { redisConnection } from "../config/redis.js";
 import { sendOrderEmail } from "../services/emailService.js";
 import { sendNotification } from "../services/notificationService.js";
 import orderModel from "../models/orderModel.js";
+
+await connectDB();
+console.log("Worker DB connected");
 
 const worker = new Worker(
   "orderQueue",
