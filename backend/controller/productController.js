@@ -4,6 +4,7 @@ import { cloudinary } from "../config/cloudinary.js";
 import calculateRating from "../utils/calculateRating.js";
 import redisClient from "../config/redis.js";
 import { clearProductCache } from "../utils/cacheHelper.js";
+import mongoose from "mongoose";
 
 export const addProduct = async (req, res) => {
   try {
@@ -244,7 +245,15 @@ export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await productModel.findById(id);
+    let product;
+
+    // Check if the 'id' passed is a valid MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      product = await productModel.findById(id);
+    } else {
+      // If not a valid ID, try finding by slug instead
+      product = await productModel.findOne({ slug: id });
+    }
 
     if (!product) {
       return res.status(404).json({

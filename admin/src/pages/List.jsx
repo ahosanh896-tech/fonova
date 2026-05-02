@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
-import Api from "../api/api.jsx";
+import Api from "../api/api";
 import { successToast, errorToast } from "../toast";
 import { currency } from "../utils/currency..jsx";
+import { useNavigate } from "react-router-dom";
+
 const List = () => {
+  const navigate = useNavigate();
+
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -15,11 +19,8 @@ const List = () => {
       const response = await Api.get(`/api/product/?page=${pageNum}&limit=10`);
 
       if (response.data.success) {
-        if (pageNum === 1) {
-          setList(response.data.products);
-        } else {
-          setList((prev) => [...prev, ...response.data.products]);
-        }
+        if (pageNum === 1) setList(response.data.products);
+        else setList((prev) => [...prev, ...response.data.products]);
 
         setPages(response.data.pages);
       } else {
@@ -36,7 +37,6 @@ const List = () => {
   const removeProduct = async (id) => {
     try {
       const response = await Api.delete(`/api/product/${id}`);
-
       if (response.data.success) {
         successToast(response.data.message);
         fetchList(1);
@@ -60,24 +60,13 @@ const List = () => {
     fetchList(nextPage);
   };
 
-  if (loading) {
-    return <p className="text-center mt-5">Loading products...</p>;
-  }
+  if (loading) return <p className="text-center mt-5">Loading products...</p>;
 
   return (
     <div className="w-full min-h-screen">
       <p className="mb-2 text-lg font-semibold">All Products List</p>
 
       <div className="flex flex-col gap-2">
-        {/* Table Header */}
-        <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center py-2 px-3 bg-gray-100 text-sm font-semibold">
-          <span>Image</span>
-          <span>Name</span>
-          <span>Category</span>
-          <span>Price</span>
-          <span className="text-center">Action</span>
-        </div>
-
         {list.length === 0 && (
           <p className="text-center text-gray-500 mt-4">No products found</p>
         )}
@@ -85,7 +74,12 @@ const List = () => {
         {list.map((item) => (
           <div
             key={item._id}
-            className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center gap-2 text-sm border border-gray-200 p-2 rounded"
+            onDoubleClick={() => {
+              // ✅ backend expects slug, not _id
+              if (!item.slug) return errorToast("Product slug missing");
+              navigate(`/update?id=${item.slug}`);
+            }}
+            className="cursor-pointer grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center gap-2 text-sm border border-gray-200 p-2 rounded"
           >
             <img
               className="w-12 h-12 object-cover rounded"
@@ -94,7 +88,6 @@ const List = () => {
             />
 
             <p className="truncate">{item.name}</p>
-
             <p>{item.category}</p>
 
             <p>
@@ -103,8 +96,12 @@ const List = () => {
             </p>
 
             <button
-              onClick={() => removeProduct(item._id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                removeProduct(item._id);
+              }}
               className="text-red-500 hover:text-red-700 text-lg text-right md:text-center"
+              title="Delete"
             >
               ✕
             </button>

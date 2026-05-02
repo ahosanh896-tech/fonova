@@ -8,6 +8,7 @@ import Orders from "./pages/Orders";
 import Login from "./components/Login";
 import { Toaster } from "sonner";
 import Api from "./api/api";
+import EditProduct from "./pages/EditProduct";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -70,6 +71,7 @@ const App = () => {
                 <Route path="/add" element={<Add />} />
                 <Route path="/list" element={<List />} />
                 <Route path="/orders" element={<Orders />} />
+                <Route path="/update" element={<EditProduct />} />
                 <Route path="*" element={<Navigate to="/add" />} />
               </Routes>
             </div>
