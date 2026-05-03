@@ -13,7 +13,6 @@ import cartRouter from "./routes/cartRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import startCronJobs from "./config/cron.js";
 import paymentRouter from "./routes/paymentRoutes.js";
-import "./workers/orderWorker.js";
 
 // App config
 const app = express();
@@ -28,6 +27,11 @@ app.use(
     ],
     credentials: true,
   }),
+);
+
+app.use(
+  "/api/payment/stripe/webhook",
+  express.raw({ type: "application/json" }),
 );
 
 app.use(express.json());

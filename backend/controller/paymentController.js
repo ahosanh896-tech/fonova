@@ -3,22 +3,21 @@ import productModel from "../models/productModel.js";
 import orderModel from "../models/orderModel.js";
 import { createOrderService } from "../services/orderService.js";
 
+//CREATE SESSION
 export const createStripeSession = async (req, res) => {
   try {
     const userId = req.user._id;
     const { items, address } = req.body;
-    const { origin } = req.headers;
+
+    const origin = process.env.CLIENT_URL || req.headers.origin;
 
     const line_items = [];
 
     for (const item of items) {
       const productId = item._id || item.productId?._id;
-      if (!productId) {
-        throw new Error("Invalid item data");
-      }
+      if (!productId) throw new Error("Invalid item data");
 
       const product = await productModel.findById(productId);
-
       if (!product) throw new Error("Product not found");
 
       line_items.push({
@@ -62,6 +61,7 @@ export const createStripeSession = async (req, res) => {
       url: session.url,
     });
   } catch (err) {
+    console.error("Stripe session error:", err);
     res.status(500).json({
       success: false,
       message: err.message,
@@ -75,54 +75,70 @@ export const stripeWebhook = async (req, res) => {
   try {
     const sig = req.headers["stripe-signature"];
 
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      console.warn("Webhook secret missing");
+      return res.json({ received: true });
+    }
+
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
+    console.error("Webhook error:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // HANDLE EVENT
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    const userId = session.metadata.userId;
-    const items = session.metadata.items.split(",").map((item) => {
-      const [productId, quantity] = item.split(":");
-      return { _id: productId, quantity: Number(quantity) };
-    });
-    const address = JSON.parse(session.metadata.address);
+    try {
+      const userId = session.metadata.userId;
 
-    // Prevent duplicate orders
-    const existingOrder = await orderModel.findOne({
-      "paymentResult.id": session.id,
-    });
+      const items = session.metadata.items.split(",").map((item) => {
+        const [productId, quantity] = item.split(":");
+        return { _id: productId, quantity: Number(quantity) };
+      });
 
-    if (existingOrder) {
-      return res.json({ received: true });
+      const address = JSON.parse(session.metadata.address);
+
+      // Prevent duplicate orders
+      const existingOrder = await orderModel.findOne({
+        "paymentResult.id": session.id,
+      });
+
+      if (existingOrder) {
+        return res.json({ received: true });
+      }
+
+      await createOrderService({
+        userId,
+        orderItems: items.map((i) => ({
+          product: i._id,
+          quantity: i.quantity,
+        })),
+        shippingAddress: address,
+        paymentMethod: "Stripe",
+        paymentStatus: "paid",
+        paymentResult: {
+          id: session.id,
+          status: session.payment_status,
+          email: session.customer_details?.email,
+        },
+      });
+
+      console.log("Order created via webhook:", session.id);
+    } catch (error) {
+      console.error("Webhook processing error:", error);
     }
-
-    await createOrderService({
-      userId,
-      orderItems: items.map((i) => ({
-        product: i._id,
-        quantity: i.quantity,
-      })),
-      shippingAddress: address,
-      paymentMethod: "Stripe",
-      paymentStatus: "paid",
-      paymentResult: {
-        id: session.id,
-        status: session.payment_status,
-        email: session.customer_details?.email,
-      },
-    });
   }
 
   res.json({ received: true });
 };
 
+// VERIFY SESSION (FALLBACK)
 export const verifyStripeSession = async (req, res) => {
   try {
     const { session_id } = req.body;
@@ -137,13 +153,14 @@ export const verifyStripeSession = async (req, res) => {
     }
 
     const userId = session.metadata.userId;
+
     const items = session.metadata.items.split(",").map((item) => {
       const [productId, quantity] = item.split(":");
       return { _id: productId, quantity: Number(quantity) };
     });
+
     const address = JSON.parse(session.metadata.address);
 
-    // Check if order already exists
     const existingOrder = await orderModel.findOne({
       "paymentResult.id": session.id,
     });
@@ -176,6 +193,7 @@ export const verifyStripeSession = async (req, res) => {
       message: "Order created successfully",
     });
   } catch (err) {
+    console.error("Verify session error:", err);
     res.status(500).json({
       success: false,
       message: err.message,

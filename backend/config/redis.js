@@ -1,15 +1,15 @@
 import { createClient } from "redis";
+import { URL } from "url";
 
+// Redis client
 const redisClient = createClient({
-  url: process.env.REDIS_URL || "redis://127.0.0.1:6379",
+  url: process.env.REDIS_URL,
 });
 
-// error handler
 redisClient.on("error", (err) => {
   console.error("Redis Client Error:", err);
 });
 
-// connect function
 export const connectRedis = async () => {
   try {
     if (!redisClient.isOpen) {
@@ -21,10 +21,16 @@ export const connectRedis = async () => {
   }
 };
 
-// for BullMQ
+// BullMQ connection
+
+const redisUrl = new URL(process.env.REDIS_URL);
+
 export const redisConnection = {
-  host: "127.0.0.1",
-  port: 6379,
+  host: redisUrl.hostname,
+  port: Number(redisUrl.port),
+  username: redisUrl.username,
+  password: redisUrl.password,
+  tls: {},
 };
 
 export default redisClient;
