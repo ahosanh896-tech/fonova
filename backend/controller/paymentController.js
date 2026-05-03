@@ -81,7 +81,7 @@ export const stripeWebhook = async (req, res) => {
     }
 
     event = stripe.webhooks.constructEvent(
-      req.body,
+      req.body, // raw body
       sig,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
@@ -90,11 +90,20 @@ export const stripeWebhook = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // HANDLE EVENT
+  // Respond immediately (VERY IMPORTANT)
+  res.json({ received: true });
+
+  // Process in background
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
     try {
+      // Safety check
+      if (!session.metadata?.items || !session.metadata?.address) {
+        console.error("Missing metadata in session");
+        return;
+      }
+
       const userId = session.metadata.userId;
 
       const items = session.metadata.items.split(",").map((item) => {
@@ -110,7 +119,8 @@ export const stripeWebhook = async (req, res) => {
       });
 
       if (existingOrder) {
-        return res.json({ received: true });
+        console.log("Duplicate webhook ignored:", session.id);
+        return;
       }
 
       await createOrderService({
@@ -134,8 +144,6 @@ export const stripeWebhook = async (req, res) => {
       console.error("Webhook processing error:", error);
     }
   }
-
-  res.json({ received: true });
 };
 
 // VERIFY SESSION (FALLBACK)
@@ -161,6 +169,7 @@ export const verifyStripeSession = async (req, res) => {
 
     const address = JSON.parse(session.metadata.address);
 
+    // Prevent duplicate orders
     const existingOrder = await orderModel.findOne({
       "paymentResult.id": session.id,
     });
