@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import { createOrderService } from "../services/orderService.js";
+import productModel from "../models/productModel.js";
 
 // COD ORDER ONLY
 export const placeOrder = async (req, res) => {
@@ -187,9 +188,6 @@ export const updatePaymentStatus = async (req, res) => {
 };
 
 // CANCEL ORDER (USER)
-
-import productModel from "../models/productModel.js";
-
 export const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;

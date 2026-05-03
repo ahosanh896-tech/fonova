@@ -60,7 +60,10 @@ export const useReview = (product, user, refresh) => {
         errorToast(res.message);
       }
     } catch (err) {
-      errorToast(err.message || "Something went wrong");
+      const message =
+        err?.response?.data?.message || err.message || "Something went wrong";
+
+      errorToast(message);
     } finally {
       setLoading(false);
     }
@@ -86,7 +89,10 @@ export const useReview = (product, user, refresh) => {
         errorToast(res.message);
       }
     } catch (err) {
-      errorToast(err.message);
+      const message =
+        err?.response?.data?.message || err.message || "Something went wrong";
+
+      errorToast(message);
     } finally {
       setLoading(false);
     }
