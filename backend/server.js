@@ -13,22 +13,36 @@ import cartRouter from "./routes/cartRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import startCronJobs from "./config/cron.js";
 import paymentRouter from "./routes/paymentRoutes.js";
+import "./workers/orderWorker.js";
 
-// App config
 const app = express();
 const port = process.env.PORT || 4000;
 
-// middleware
+// safer CORS
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.ADMIN_URL,
+  "http://localhost:6024",
+  "http://localhost:6025",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:6024", // user frontend
-      "http://localhost:6025", // admin panel
-    ],
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      // exact match only (safe + predictable)
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS blocked: " + origin));
+    },
     credentials: true,
   }),
 );
 
+// Stripe webhook
 app.use(
   "/api/payment/stripe/webhook",
   express.raw({ type: "application/json" }),

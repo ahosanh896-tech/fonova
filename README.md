@@ -13,7 +13,11 @@
 
 ## 🌐 Live Demo
 
-Live demo coming soon
+- 🖥️ [Frontend](https://fonova-frontend.netlify.app)
+- 🛠️ [Admin](https://fornova-admin.netlify.app)
+- ⚙️ [Backend](https://fonova.onrender.com)
+
+> ⚠️ Backend may take a few seconds to respond initially (cold start on free hosting).
 
 > Background worker runs as a separate service for handling queues (emails & notifications)
 
