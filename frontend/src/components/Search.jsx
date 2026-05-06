@@ -93,8 +93,8 @@ const Search = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <form onSubmit={handleSubmit}>
-              <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-2xl px-6 py-4 shadow-xl">
-                <SearchIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl px-4 sm:px-6 py-4 shadow-xl">
+                <SearchIcon className="w-5 h-5 text-gray-400 flex-shrink-0 mr-4" />
 
                 <input
                   ref={inputRef}
@@ -102,13 +102,13 @@ const Search = () => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search furniture, chairs, tables..."
-                  className="flex-1 bg-transparent text-base text-gray-900 placeholder:text-gray-400 outline-none"
+                  className="w-full bg-transparent text-base text-gray-900 placeholder:text-gray-400 outline-none pe-20 sm:pe-24"
                 />
 
                 <button
                   type="button"
                   onClick={closeSearch}
-                  className="text-sm text-gray-400 hover:text-gray-600 transition-colors px-3 py-1 rounded-md hover:bg-gray-100"
+                  className="absolute right-4 text-sm text-gray-400 hover:text-gray-600 transition-colors px-3 py-1 rounded-md hover:bg-gray-100"
                   aria-label="Close search"
                 >
                   Cancel
